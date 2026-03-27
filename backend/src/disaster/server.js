@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import http from 'http';
 import { Server } from 'socket.io';
 import { createApp, mountRoutes } from './app.js';
@@ -6,6 +9,14 @@ import { setupAlertsRoutes } from './routes/alerts.routes.js';
 import { setupRegionsRoutes } from './routes/regions.routes.js';
 import { setupUsersRoutes } from './routes/users.routes.js';
 import { weatherRouter } from './routes/weather.routes.js';
+import mandiRoutes from '../routes/mandiRoutes.js';
+
+// Load environment variables
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.resolve(__dirname, '../../.env');
+console.log('🔧 Loading .env from:', envPath);
+dotenv.config({ path: envPath });
 
 const PORT = process.env.DISASTER_PORT || 4000;
 const HOST = process.env.HOST || 'localhost';
@@ -43,6 +54,7 @@ setupAlertsRoutes(app, io);
 setupRegionsRoutes(app);
 setupUsersRoutes(app);
 app.use(weatherRouter);
+app.use('/api/mandi', mandiRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -75,7 +87,11 @@ app.use((req, res) => {
       'PUT /api/disaster/users/:id/notifications',
       'GET /api/disaster/users/:id/checklist',
       'POST /api/disaster/users/:id/checklist',
-      'PUT /api/disaster/users/:id/checklist/:itemId'
+      'PUT /api/disaster/users/:id/checklist/:itemId',
+      'GET /api/mandi (fetch prices with state & commodity filters)',
+      'GET /api/mandi/states (available states)',
+      'GET /api/mandi/commodities (available commodities)',
+      'GET /api/mandi/trends (price trends)'
     ]
   });
 });
@@ -90,7 +106,14 @@ server.listen(PORT, HOST, () => {
   console.log(`  Alerts: GET/POST /api/disaster/alerts`);
   console.log(`  Regions: GET /api/disaster/regions`);
   console.log(`  Weather: GET /api/weather?lat=<lat>&lon=<lon>`);
+  console.log(`  Mandi Prices: GET /api/mandi?state=<state>&commodity=<commodity>`);
   console.log(`  Users: GET /api/disaster/users/:id`);
+  console.log(`\n🌾 Mandi API examples:`);
+  console.log(`  http://${HOST}:${PORT}/api/mandi (all prices)`);
+  console.log(`  http://${HOST}:${PORT}/api/mandi?state=Maharashtra&commodity=Onion`);
+  console.log(`  http://${HOST}:${PORT}/api/mandi/states (list all states)`);
+  console.log(`  http://${HOST}:${PORT}/api/mandi/commodities (list all commodities)`);
+  console.log(`  http://${HOST}:${PORT}/api/mandi/trends?state=Maharashtra&commodity=Onion`);
   console.log(`\n🌍 Weather API examples:`);
   console.log(`  http://${HOST}:${PORT}/api/weather?lat=19.0760&lon=72.8777 (Mumbai)`);
   console.log(`  http://${HOST}:${PORT}/api/weather?lat=28.7041&lon=77.1025 (Delhi)`);

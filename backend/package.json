@@ -6,7 +6,12 @@
   "scripts": {
     "start": "node src/disaster-server.js",
     "dev": "nodemon src/disaster-server.js",
-    "weather": "nodemon src/app.js"
+    "weather": "nodemon src/app.js",
+    "mandi": "nodemon src/server.js",
+    "mandi:start": "node src/server.js",
+    "mandi:dev": "nodemon src/server.js --exec node",
+    "server": "node src/server.js",
+    "server:dev": "nodemon src/server.js"
   },
   "dependencies": {
     "axios": "^1.5.0",
