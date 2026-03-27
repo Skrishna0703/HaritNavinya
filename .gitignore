@@ -1,0 +1,75 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.vite/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.code-workspace
+.sublime-project
+.sublime-workspace
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# OS files
+Thumbs.db
+.DS_Store
+ehthumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.cache/
+.turbo/
+dist-ssr/
+*.local
+
+# Backend specific
+backend/node_modules/
+backend/.env
+backend/.env.local
+
+# Frontend specific
+frontend/node_modules/
+frontend/.env
+frontend/.env.local
+frontend/dist/
