@@ -23,6 +23,20 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 const AGMARKNET_API_BASE = 'https://api.data.gov.in/resource/35985678-0d79-46b4-9ed6-6f13308a1d24';
 
+// All Indian states and union territories
+const ALL_INDIAN_STATES = [
+  // States (28)
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
+  "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
+  "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
+  "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura",
+  "Uttar Pradesh", "Uttarakhand", "West Bengal",
+  // Union Territories (8)
+  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli",
+  "Daman and Diu", "Delhi", "Lakshadweep", "Puducherry", "Ladakh"
+];
+
 /**
  * Fetch data from Agmarknet API with caching
  * @param {Object} filters - Query filters
@@ -319,13 +333,11 @@ export async function getAvailableStates(req, res) {
   try {
     console.log('🌍 Fetching available states...');
     
-    const rawData = await fetchAgmarknetData();
-    const states = [...new Set(rawData.map(record => record.State).filter(Boolean))];
-    
+    // Return all Indian states and union territories
     res.status(200).json({
       success: true,
-      states: states.sort(),
-      count: states.length
+      states: ALL_INDIAN_STATES,
+      count: ALL_INDIAN_STATES.length
     });
   } catch (error) {
     console.error('❌ States fetch error:', error.message);

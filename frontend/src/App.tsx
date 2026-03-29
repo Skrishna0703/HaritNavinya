@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "./components/ui/button";
 import { Card, CardContent } from "./components/ui/card";
 import { ImageWithFallback } from "./components/figma/ImageWithFallback";
@@ -49,12 +49,27 @@ import {
 type PageType = 'home' | 'plant-disease' | 'market-price' | 'ai-chatbot' | 'crop-recommendation' | 'fertilizer-recommendation' | 'disaster-alerts' | 'soil-data-insights' | 'weather-forecast' | 'soil-testing-centers' | 'smart-farming-guidance' | 'farmer-officer-connect' | 'post-harvest-support';
 
 function AppContent() {
-  const [currentPage, setCurrentPage] = useState<PageType>('home');
+  // Initialize from localStorage, default to 'home' if not found
+  const [currentPage, setCurrentPage] = useState<PageType>(() => {
+    const savedPage = localStorage.getItem('currentPage') as PageType;
+    return (savedPage && 
+      ['home', 'plant-disease', 'market-price', 'ai-chatbot', 'crop-recommendation', 
+       'fertilizer-recommendation', 'disaster-alerts', 'soil-data-insights', 
+       'weather-forecast', 'soil-testing-centers', 'smart-farming-guidance', 
+       'farmer-officer-connect', 'post-harvest-support'].includes(savedPage)) 
+      ? savedPage 
+      : 'home';
+  });
   const [navPage, setNavPage] = useState('home');
   const { t } = useLanguage();
   
+  // Save current page to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('currentPage', currentPage);
+  }, [currentPage]);
+  
   const handleFeatureClick = (route: string) => {
-    setCurrentPage(route);
+    setCurrentPage(route as PageType);
   };
 
   const features = [
