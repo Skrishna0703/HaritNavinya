@@ -17,6 +17,8 @@ import { SmartFarmingGuidance } from "./components/SmartFarmingGuidance";
 import { FarmerOfficerConnect } from "./components/FarmerOfficerConnect";
 import { PostHarvestSupport } from "./components/PostHarvestSupport";
 import { motion } from "motion/react";
+import LoadingScreen from "./components/LoadingScreen";
+import { useLoading } from "./hooks/useLoading";
 import { 
   Leaf, 
   Wheat, 
@@ -48,6 +50,22 @@ import {
 
 type PageType = 'home' | 'plant-disease' | 'market-price' | 'ai-chatbot' | 'crop-recommendation' | 'fertilizer-recommendation' | 'disaster-alerts' | 'soil-data-insights' | 'weather-forecast' | 'soil-testing-centers' | 'smart-farming-guidance' | 'farmer-officer-connect' | 'post-harvest-support';
 
+// Custom loading messages and GIFs for each page
+const loadingConfig: Record<string, { message: string; gifUrl?: string }> = {
+  'plant-disease': { message: 'Analyzing Plant Disease...', gifUrl: '/loading/plant.gif' },
+  'crop-recommendation': { message: 'Finding Best Crops for You...', gifUrl: '/loading/crops.gif' },
+  'fertilizer-recommendation': { message: 'Calculating Fertilizer Needs...', gifUrl: '/loading/fertilizer.gif' },
+  'market-price': { message: 'Loading Market Prices...', gifUrl: '/loading/market.gif' },
+  'disaster-alerts': { message: 'Checking Disaster Alerts...', gifUrl: '/loading/alerts.gif' },
+  'ai-chatbot': { message: 'Starting AI Assistant...', gifUrl: '/loading/chatbot.gif' },
+  'soil-data-insights': { message: 'Analyzing Soil Data...', gifUrl: '/loading/soil.gif' },
+  'weather-forecast': { message: 'Fetching Weather Data...', gifUrl: '/loading/weather.gif' },
+  'soil-testing-centers': { message: 'Finding Testing Centers...', gifUrl: '/loading/centers.gif' },
+  'smart-farming-guidance': { message: 'Loading Smart Farming Guide...', gifUrl: '/loading/farming.gif' },
+  'farmer-officer-connect': { message: 'Connecting Farmers...', gifUrl: '/loading/connect.gif' },
+  'post-harvest-support': { message: 'Loading Support Resources...', gifUrl: '/loading/harvest.gif' }
+};
+
 function AppContent() {
   // Initialize from localStorage, default to 'home' if not found
   const [currentPage, setCurrentPage] = useState<PageType>(() => {
@@ -62,6 +80,20 @@ function AppContent() {
   });
   const [navPage, setNavPage] = useState('home');
   const { t } = useLanguage();
+  const { isLoading, loadingMessage, startLoading, stopLoading } = useLoading();
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  
+  // Show loading on initial app load
+  useEffect(() => {
+    if (isInitialLoad) {
+      startLoading('Initializing HaritNavinya...');
+      const timer = setTimeout(() => {
+        stopLoading();
+        setIsInitialLoad(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isInitialLoad, startLoading, stopLoading]);
   
   // Save current page to localStorage whenever it changes
   useEffect(() => {
@@ -69,7 +101,12 @@ function AppContent() {
   }, [currentPage]);
   
   const handleFeatureClick = (route: string) => {
-    setCurrentPage(route as PageType);
+    const config = loadingConfig[route] || { message: 'Loading...' };
+    startLoading(config.message);
+    setTimeout(() => {
+      setCurrentPage(route as PageType);
+      stopLoading();
+    }, 800);
   };
 
   const features = [
@@ -206,63 +243,125 @@ function AppContent() {
 
   // Page routing
   if (currentPage === 'plant-disease') {
-    return <PlantDiseaseDetection onBack={() => setCurrentPage('home')} />;
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <PlantDiseaseDetection onBack={() => setCurrentPage('home')} />
+      </>
+    );
   }
   
   if (currentPage === 'crop-recommendation') {
-    return <CropRecommendation onBack={() => setCurrentPage('home')} />;
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <CropRecommendation onBack={() => setCurrentPage('home')} />
+      </>
+    );
   }
   
   if (currentPage === 'fertilizer-recommendation') {
-    return <FertilizerRecommendation onBack={() => setCurrentPage('home')} />;
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <FertilizerRecommendation onBack={() => setCurrentPage('home')} />
+      </>
+    );
   }
   
   if (currentPage === 'market-price') {
-    return <MarketPriceForecast onBack={() => setCurrentPage('home')} />;
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <MarketPriceForecast onBack={() => setCurrentPage('home')} />
+      </>
+    );
   }
   
   if (currentPage === 'disaster-alerts') {
-    return <DisasterAlerts onBack={() => setCurrentPage('home')} />;
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <DisasterAlerts onBack={() => setCurrentPage('home')} />
+      </>
+    );
   }
   
   if (currentPage === 'ai-chatbot') {
-    return <AIChatbot onBack={() => setCurrentPage('home')} />;
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <AIChatbot onBack={() => setCurrentPage('home')} />
+      </>
+    );
   }
   
   if (currentPage === 'soil-data-insights') {
-    return <SoilDataInsights onBack={() => setCurrentPage('home')} />;
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <SoilDataInsights onBack={() => setCurrentPage('home')} />
+      </>
+    );
   }
   
   if (currentPage === 'weather-forecast') {
-    return <WeatherForecast onBack={() => setCurrentPage('home')} />;
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <WeatherForecast onBack={() => setCurrentPage('home')} />
+      </>
+    );
   }
   
   if (currentPage === 'soil-testing-centers') {
-    return <SoilTestingCenters onBack={() => setCurrentPage('home')} />;
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <SoilTestingCenters onBack={() => setCurrentPage('home')} />
+      </>
+    );
   }
   
   if (currentPage === 'smart-farming-guidance') {
-    return <SmartFarmingGuidance onBack={() => setCurrentPage('home')} />;
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <SmartFarmingGuidance onBack={() => setCurrentPage('home')} />
+      </>
+    );
   }
   
   if (currentPage === 'farmer-officer-connect') {
-    return <FarmerOfficerConnect onBack={() => setCurrentPage('home')} />;
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <FarmerOfficerConnect onBack={() => setCurrentPage('home')} />
+      </>
+    );
   }
   
   if (currentPage === 'post-harvest-support') {
-    return <PostHarvestSupport onBack={() => setCurrentPage('home')} />;
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <PostHarvestSupport onBack={() => setCurrentPage('home')} />
+      </>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden font-['Poppins',sans-serif]">
-      {/* Modern Pill-Shaped Navbar */}
-      <ModernNavbar currentPage={navPage} onPageChange={setNavPage} />
+    <>
+      <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+      <div className="min-h-screen bg-white overflow-x-hidden font-['Poppins',sans-serif]">
+        {/* Modern Pill-Shaped Navbar */}
+        <ModernNavbar currentPage={navPage} onPageChange={setNavPage} />
 
-      {/* Modern SaaS Hero Section */}
-      <section 
-        id="home"
-        className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
-        style={{
+        {/* Modern SaaS Hero Section */}
+        <section 
+          id="home"
+          className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+          style={{
           background: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5530 100%)'
         }}
       >
@@ -1323,6 +1422,7 @@ function AppContent() {
         </div>
       </motion.footer>
     </div>
+    </>
   );
 }
 

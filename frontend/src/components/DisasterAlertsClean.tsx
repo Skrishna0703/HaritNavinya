@@ -3,6 +3,9 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from "react-le
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { io } from "socket.io-client";
+import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
+import { ArrowLeft, AlertTriangle, MapPin, Clock, Target } from "lucide-react";
 
 // Fix default Leaflet icon paths for Vite (safe best-effort)
 try {
@@ -47,11 +50,12 @@ function FlyToLocation({ coords }: { coords: [number, number] | null }) {
   return null;
 }
 
-export const DisasterAlerts = () => {
+export const DisasterAlerts = ({ onBack }: { onBack: () => void }) => {
   const [userLocation, setUserLocation] = useState<any>(null);
   const [mapCenter, setMapCenter] = useState<any>(INDIA_CENTER);
   const [zoom, setZoom] = useState(5);
   const [alerts, setAlerts] = useState<any[]>([]);
+  const [selectedAlert, setSelectedAlert] = useState<any>(null);
   const socketRef = useRef<any>(null);
 
   useEffect(() => {
@@ -117,39 +121,191 @@ export const DisasterAlerts = () => {
   const createAlertIcon = (color: string) => L.divIcon({ className: "", html: `<span class=\"alert-dot\" style=\"background:${color}\"></span>`, iconSize: [20, 20], iconAnchor: [10, 10], popupAnchor: [0, -10] });
 
   return (
-    <div className="w-full">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Disaster Alerts</h3>
-        <div className="text-sm text-gray-500">Live updates • India</div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-red-50 to-white font-['Poppins',sans-serif]">
+      {/* Header */}
+      <header className="bg-gradient-to-r from-red-600 to-orange-600 text-white shadow-lg sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onBack}
+                className="text-white hover:bg-white/20"
+              >
+                <ArrowLeft className="w-6 h-6" />
+              </Button>
+              <div>
+                <h1 className="text-3xl font-bold">Disaster Alerts</h1>
+                <p className="text-red-100 text-sm">Real-time weather & disaster monitoring</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-sm font-semibold">Live Updates</div>
+              <div className="text-xs text-red-100">Across India</div>
+            </div>
+          </div>
+        </div>
+      </header>
 
-      <div className="w-full rounded-2xl shadow-xl overflow-hidden border">
-        <MapContainer center={mapCenter} zoom={zoom} style={{ height: 330, width: "100%" }}>
-          <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <FlyToLocation coords={userLocation} />
-          {userLocation ? <Marker position={userLocation} icon={L.divIcon({ className: "pulse-marker" as any })}><Popup>You are here</Popup></Marker> : <Circle center={INDIA_CENTER as any} radius={400000} pathOptions={{ fillOpacity: 0.02, color: "#0ea5e9" }} />}
-          {alerts.map((a: any) => {
-            const coords = a.coordinates || (a.state ? (STATE_COORDINATES as any)[a.state] : undefined);
-            if (!coords) return null;
-            const color = severityColor(a.severity || "Low");
-            return (
-              <Marker key={a.id} position={coords} icon={createAlertIcon(color)}>
-                <Popup>
-                  <div className="max-w-xs">
-                    <h4 className="font-semibold">{a.title}</h4>
-                    <div className="text-xs text-gray-600">{a.state}</div>
-                    <div className="mt-2 text-sm">{a.description}</div>
-                    <div className="mt-2 text-xs text-gray-500">
-                      <div>Severity: <span style={{ color }}>{a.severity}</span></div>
-                      {a.timeRemaining ? <div>Time remaining: {a.timeRemaining}</div> : null}
-                      {a.affectedArea ? <div>Affected area: {a.affectedArea}</div> : null}
-                    </div>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Map Section */}
+          <div className="lg:col-span-2">
+            <Card className="overflow-hidden border-2 border-red-200 shadow-xl">
+              <CardContent className="p-0">
+                <div className="rounded-xl overflow-hidden">
+                  <MapContainer center={mapCenter} zoom={zoom} style={{ height: 450, width: "100%" }}>
+                    <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <FlyToLocation coords={userLocation} />
+                    {userLocation ? <Marker position={userLocation} icon={L.divIcon({ className: "pulse-marker" as any })}><Popup>You are here</Popup></Marker> : <Circle center={INDIA_CENTER as any} radius={400000} pathOptions={{ fillOpacity: 0.02, color: "#0ea5e9" }} />}
+                    {alerts.map((a: any) => {
+                      const coords = a.coordinates || (a.state ? (STATE_COORDINATES as any)[a.state] : undefined);
+                      if (!coords) return null;
+                      const color = severityColor(a.severity || "Low");
+                      return (
+                        <Marker key={a.id} position={coords} icon={createAlertIcon(color)} eventHandlers={{ click: () => setSelectedAlert(a) }}>
+                          <Popup>
+                            <div className="max-w-xs">
+                              <h4 className="font-semibold">{a.title}</h4>
+                              <div className="text-xs text-gray-600">{a.state}</div>
+                              <div className="mt-2 text-sm">{a.description}</div>
+                              <div className="mt-2 text-xs text-gray-500">
+                                <div>Severity: <span style={{ color }}>{a.severity}</span></div>
+                                {a.timeRemaining ? <div>Time remaining: {a.timeRemaining}</div> : null}
+                                {a.affectedArea ? <div>Affected area: {a.affectedArea}</div> : null}
+                              </div>
+                            </div>
+                          </Popup>
+                        </Marker>
+                      );
+                    })}
+                  </MapContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Alert Details Section */}
+          <div className="space-y-4">
+            <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                  <h3 className="font-bold text-lg">Active Alerts: {alerts.length}</h3>
+                </div>
+                <div className="space-y-2 text-sm text-gray-600">
+                  {alerts.length === 0 ? (
+                    <p className="text-green-600 font-semibold">✓ No active alerts - Stay safe!</p>
+                  ) : (
+                    <p>{alerts.filter((a) => a.severity === "High").length} High severity</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Alerts List */}
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {alerts.length === 0 ? (
+                <Card className="bg-green-50 border-green-200">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-green-700 font-semibold">All systems normal</p>
+                    <p className="text-xs text-green-600 mt-1">No disaster alerts in your region</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                alerts.map((alert) => (
+                  <Card
+                    key={alert.id}
+                    className={`cursor-pointer transition border-l-4 ${selectedAlert?.id === alert.id ? "ring-2 ring-red-500" : ""}`}
+                    style={{ borderLeftColor: severityColor(alert.severity) }}
+                    onClick={() => setSelectedAlert(alert)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-bold text-sm">{alert.title}</h4>
+                        <span
+                          className="text-xs px-2 py-1 rounded-full text-white font-semibold"
+                          style={{ backgroundColor: severityColor(alert.severity) }}
+                        >
+                          {alert.severity}
+                        </span>
+                      </div>
+                      <div className="space-y-1 text-xs text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-3 h-3" />
+                          {alert.state}
+                        </div>
+                        {alert.affectedArea && (
+                          <div className="flex items-center gap-2">
+                            <Target className="w-3 h-3" />
+                            {alert.affectedArea}
+                          </div>
+                        )}
+                        {alert.timeRemaining && (
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-3 h-3" />
+                            {alert.timeRemaining}
+                          </div>
+                        )}
+                      </div>
+                      {alert.description && (
+                        <p className="text-xs text-gray-700 mt-2 line-clamp-2">{alert.description}</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Selected Alert Details */}
+        {selectedAlert && (
+          <Card className="mt-6 border-2 border-orange-300 bg-gradient-to-r from-orange-50 to-red-50">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">{selectedAlert.title}</h2>
+                  <p className="text-gray-600">{selectedAlert.state}</p>
+                </div>
+                <span
+                  className="text-sm px-3 py-1 rounded-lg text-white font-bold"
+                  style={{ backgroundColor: severityColor(selectedAlert.severity) }}
+                >
+                  {selectedAlert.severity} Severity
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                <div className="bg-white p-3 rounded-lg border border-gray-200">
+                  <p className="text-xs text-gray-500">Region</p>
+                  <p className="font-bold text-gray-800">{selectedAlert.state}</p>
+                </div>
+                {selectedAlert.affectedArea && (
+                  <div className="bg-white p-3 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-500">Affected Area</p>
+                    <p className="font-bold text-gray-800">{selectedAlert.affectedArea}</p>
                   </div>
-                </Popup>
-              </Marker>
-            );
-          })}
-        </MapContainer>
+                )}
+                {selectedAlert.timeRemaining && (
+                  <div className="bg-white p-3 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-500">Time Remaining</p>
+                    <p className="font-bold text-gray-800">{selectedAlert.timeRemaining}</p>
+                  </div>
+                )}
+              </div>
+
+              {selectedAlert.description && (
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-700"><strong>Description:</strong></p>
+                  <p className="text-gray-600 mt-2">{selectedAlert.description}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
