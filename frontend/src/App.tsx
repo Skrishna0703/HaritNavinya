@@ -82,6 +82,12 @@ function AppContent() {
   const { t } = useLanguage();
   const { isLoading, loadingMessage, startLoading, stopLoading } = useLoading();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  // Real API data states
+  const [weatherData, setWeatherData] = useState<any>(null);
+  const [marketPricesData, setMarketPricesData] = useState<string[]>([]);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [marketLoading, setMarketLoading] = useState(false);
   
   // Show loading on initial app load
   useEffect(() => {
@@ -99,8 +105,76 @@ function AppContent() {
   useEffect(() => {
     localStorage.setItem('currentPage', currentPage);
   }, [currentPage]);
+
+  // Fetch weather data for Mumbai (default location)
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        setWeatherLoading(true);
+        // Weather API not yet implemented, using mock data
+        setWeatherData({
+          location: { name: 'Mumbai, Maharashtra' },
+          current: {
+            temp: 28,
+            condition: 'Sunny',
+            humidity: 65,
+            wind_speed: 12
+          }
+        });
+      } catch (error) {
+        console.error('Failed to fetch weather data:', error);
+      } finally {
+        setWeatherLoading(false);
+      }
+    };
+    fetchWeather();
+  }, []);
+
+  // Fetch market prices data
+  useEffect(() => {
+    const fetchMarketPrices = async () => {
+      try {
+        setMarketLoading(true);
+        // Fetch from Maharashtra (default state)
+        const response = await fetch('http://localhost:5000/api/dashboard?state=Maharashtra');
+        if (response.ok) {
+          const data = await response.json();
+          // Format prices for display
+          const prices = data.todayPrices?.slice(0, 6).map((item: any) => {
+            const change = item.change ? (item.change > 0 ? '+' : '') + item.change : 'N/A';
+            return `${item.commodity}: ₹${item.price}/quintal (${change})`;
+          }) || [];
+          setMarketPricesData(prices.length > 0 ? prices : getDefaultMarketPrices());
+        } else {
+          setMarketPricesData(getDefaultMarketPrices());
+        }
+      } catch (error) {
+        console.error('Failed to fetch market prices:', error);
+        setMarketPricesData(getDefaultMarketPrices());
+      } finally {
+        setMarketLoading(false);
+      }
+    };
+    fetchMarketPrices();
+  }, []);
+
+  // Fallback market prices if API fails
+  const getDefaultMarketPrices = () => [
+    "🌾 Wheat: ₹2,150/quintal (+2.3%)",
+    "🌽 Maize: ₹1,850/quintal (-1.2%)",
+    "🌾 Rice: ₹2,890/quintal (+0.8%)",
+    "🥔 Potato: ₹1,200/quintal (+5.1%)",
+    "🧅 Onion: ₹3,200/quintal (-2.8%)",
+    "🍅 Tomato: ₹4,500/quintal (+12.3%)"
+  ];
   
-  const handleFeatureClick = (route: string) => {
+  const handleFeatureClick = (route: string, externalUrl?: string) => {
+    // If it's an external URL, redirect directly
+    if (externalUrl) {
+      window.location.href = externalUrl;
+      return;
+    }
+    
     const config = loadingConfig[route] || { message: 'Loading...' };
     startLoading(config.message);
     setTimeout(() => {
@@ -118,7 +192,8 @@ function AppContent() {
       gradient: "linear-gradient(135deg, #2ecc71, #a3e635)", 
       image: "https://images.unsplash.com/photo-1613316756460-c2624b9c2c2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwbGFudCUyMGxlYWYlMjBtYWNyb3xlbnwxfHx8fDE3NjM0Njg3MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
       route: 'plant-disease',
-      clickable: true 
+      clickable: true,
+      externalUrl: 'https://plant-disease-detection-mibmco47ai3t8rjztsdrt2.streamlit.app/'
     },
     { 
       icon: Wheat, 
@@ -230,15 +305,6 @@ function AppContent() {
       route: 'post-harvest-support',
       clickable: true 
     }
-  ];
-
-  const marketPrices = [
-    "🌾 Wheat: ₹2,150/quintal (+2.3%)",
-    "🌽 Maize: ₹1,850/quintal (-1.2%)",
-    "🌾 Rice: ₹2,890/quintal (+0.8%)",
-    "🥔 Potato: ₹1,200/quintal (+5.1%)",
-    "🧅 Onion: ₹3,200/quintal (-2.8%)",
-    "🍅 Tomato: ₹4,500/quintal (+12.3%)"
   ];
 
   // Page routing
@@ -696,8 +762,57 @@ function AppContent() {
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-800 text-sm sm:text-base">{t('liveWeather')}</h3>
-                      <p className="text-gray-600 text-xs sm:text-sm">{t('mumbaiMaharashtra')}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm">{weatherData?.location?.name || 'Mumbai, Maharashtra'}</p>
                     </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <motion.div
+                          animate={{ 
+                            rotate: [0, 10, -10, 10, 0],
+                            scale: [1, 1.1, 1]
+                          }}
+                          transition={{ 
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        >
+                          <Sun className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
+                        </motion.div>
+                        <div>
+                          <motion.div 
+                            className="text-2xl sm:text-3xl font-bold text-gray-800"
+                            initial={{ opacity: 0, y: 10 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                          >
+                            {weatherLoading ? 'Loading...' : `${Math.round(weatherData?.current?.temp || 28)}°C`}
+                          </motion.div>
+                          <div className="text-gray-600 text-xs sm:text-sm">{weatherData?.current?.condition || 'Sunny'}</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-4 border-t border-gray-200">
+                      <div className="flex items-center gap-2">
+                        <CloudRain className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+                        <div>
+                          <div className="text-xs sm:text-sm text-gray-600">Humidity</div>
+                          <div className="font-medium text-sm sm:text-base">{weatherData?.current?.humidity || 65}%</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Wind className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+                        <div>
+                          <div className="text-xs sm:text-sm text-gray-600">Wind</div>
+                          <div className="font-medium text-sm sm:text-base">{Math.round(weatherData?.current?.wind_speed || 12)} km/h</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   </div>
                   
                   <div className="space-y-4">
@@ -772,7 +887,7 @@ function AppContent() {
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-800 text-sm sm:text-base">Today's Mandi Prices</h3>
-                      <p className="text-gray-600 text-xs sm:text-sm">Live market rates</p>
+                      <p className="text-gray-600 text-xs sm:text-sm">{marketLoading ? 'Loading...' : 'Live market rates'}</p>
                     </div>
                   </div>
                   
@@ -787,7 +902,7 @@ function AppContent() {
                         ease: "linear" 
                       }}
                     >
-                      {[...marketPrices, ...marketPrices, ...marketPrices].map((price, index) => (
+                      {marketPricesData.length > 0 ? [...marketPricesData, ...marketPricesData, ...marketPricesData].map((price, index) => (
                         <motion.span 
                           key={index} 
                           className="mx-4 sm:mx-8 font-medium text-gray-800 text-sm sm:text-base"
@@ -802,7 +917,9 @@ function AppContent() {
                         >
                           {price}
                         </motion.span>
-                      ))}
+                      )) : (
+                        <span className="mx-4 sm:mx-8 font-medium text-gray-600">Loading market data...</span>
+                      )}
                     </motion.div>
                   </div>
                 </CardContent>
@@ -1143,7 +1260,7 @@ function AppContent() {
                 <motion.div
                   key={index}
                   className={`relative group ${feature.clickable ? 'cursor-pointer' : ''}`}
-                  onClick={() => feature.clickable && handleFeatureClick(feature.route)}
+                  onClick={() => feature.clickable && handleFeatureClick(feature.route, feature.externalUrl)}
                   initial={{ opacity: 0, y: 60, scale: 0.95 }}
                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
                   viewport={{ once: true, amount: 0.15 }}

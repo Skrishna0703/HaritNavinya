@@ -1,19 +1,26 @@
 /**
- * Production-Ready Node.js Backend Server
- * Agricultural Market Intelligence API
+ * HaritNavinya Production-Ready Backend Server
+ * Integrated Agricultural Intelligence Platform
  * 
  * Features:
  * - Express.js setup with CORS
- * - Real-time market price data from Agmarknet API
- * - Dashboard with today's prices, top gainers/losers, and price trends
+ * - Soil Fertility Map API with MongoDB integration
+ * - Real-time market price data from Agmarknet  
+ * - Dashboard with today's prices, top gainers/losers, and trends
  * - Comprehensive error handling and logging
- * - Response caching for performance optimization
+ * - CSV data processing for Soil Health Card dataset
  */
 
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import mandiRoutes from './routes/mandiRoutes.js';
+import soilRoutes from './routes/soilRoutes.js';
+import { loadSoilDataFromCSV } from './services/csvDataParser.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Load environment variables
 dotenv.config();
@@ -86,11 +93,18 @@ app.use((req, res, next) => {
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Agricultural Market Intelligence API is running',
+    message: 'HaritNavinya Backend APIs running',
     timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    version: '1.0.0',
+    modules: [
+      { name: 'Soil Fertility Map', endpoint: '/api/soil', status: '✅' },
+      { name: 'Market Data', endpoint: '/api/mandi', status: '✅' }
+    ]
   });
 });
+
+// Soil API routes
+app.use('/api/soil', soilRoutes);
 
 // Mandi/Market API routes
 app.use('/api', mandiRoutes);
@@ -104,24 +118,38 @@ app.use('/api', mandiRoutes);
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Welcome to Agricultural Market Intelligence API',
+    message: 'Welcome to HaritNavinya Backend APIs',
     version: '1.0.0',
-    description: 'Real-time agricultural market prices and trends powered by Agmarknet',
-    endpoints: {
-      dashboard: '/api/dashboard?state=Maharashtra&commodity=All',
-      trends: '/api/trends?commodity=Onion&state=Maharashtra&days=7',
-      states: '/api/available-states',
-      commodities: '/api/available-commodities?state=Maharashtra',
-      marketData: '/api/market-data?state=Maharashtra&limit=20',
-      health: '/api/health'
+    description: 'Agricultural intelligence platform with market data and soil analysis',
+    modules: {
+      soil: {
+        description: 'Soil Fertility Map & Analysis (Cycle-II Data)',
+        startHere: 'GET /api/soil/health',
+        endpoints: {
+          'Get Soil Data': 'GET /api/soil/soil-data?state=Maharashtra',
+          'Get Insights': 'GET /api/soil/soil-insights?state=Maharashtra',
+          'List States': 'GET /api/soil/states',
+          'Get Districts': 'GET /api/soil/districts?state=Maharashtra',
+          'Compare States': 'GET /api/soil/compare?states=Maharashtra,Gujarat',
+          'Statistics': 'GET /api/soil/statistics/Maharashtra',
+          'Crop Recommendations': 'GET /api/soil/crops?state=Maharashtra',
+          'Filter': 'POST /api/soil/filter'
+        }
+      },
+      market: {
+        description: 'Market Price & Commodity Data',
+        startHere: 'GET /api/health',
+        endpoints: {
+          'Dashboard': 'GET /api/dashboard?state=Maharashtra&commodity=All',
+          'Trends': 'GET /api/trends?commodity=Onion&state=Maharashtra&days=7',
+          'States': 'GET /api/available-states',
+          'Commodities': 'GET /api/available-commodities?state=Maharashtra',
+          'Market Data': 'GET /api/market-data?state=Maharashtra&limit=20'
+        }
+      }
     },
-    documentation: {
-      dashboard: 'Get summary of today\'s prices, top gainers/losers, and trends',
-      trends: 'Get 7-day price trend for specific commodity',
-      states: 'Get list of available states',
-      commodities: 'Get list of available commodities for a state',
-      marketData: 'Get detailed market data with records'
-    }
+    health: '/api/health',
+    documentation: 'Visit https://github.com/yourusername/HaritNavinya'
   });
 });
 
@@ -173,34 +201,89 @@ app.use((error, req, res, next) => {
 
 /**
  * ============================================
+ * INITIALIZE SOIL API
+ * ============================================
+ */
+
+async function initializeSoilAPI() {
+  try {
+    console.log('\n🌱 Initializing Soil Fertility Map API...');
+
+    // Load CSV data
+    const csvPath = path.join(__dirname, '..', 'Nutrient.csv');
+    console.log('📂 Loading CSV data...');
+    await loadSoilDataFromCSV(csvPath);
+
+    console.log('✅ Soil API initialized successfully\n');
+    return true;
+  } catch (error) {
+    console.warn(`⚠️  Soil API initialization warning: ${error.message}`);
+    console.warn('⚠️  Soil API will work with CSV cache only\n');
+    return false;
+  }
+}
+
+/**
+ * ============================================
  * SERVER STARTUP
  * ============================================
  */
 
-const server = app.listen(PORT, () => {
-  console.log(`
+async function startServer() {
+  try {
+    // Initialize Soil API
+    await initializeSoilAPI();
+
+    const server = app.listen(PORT, () => {
+      console.log(`
 ╔════════════════════════════════════════════════════╗
-║   Agricultural Market Intelligence API             ║
+║   HaritNavinya Backend - Production Ready          ║
 ║   Status: ✅ Running                               ║
 ╠════════════════════════════════════════════════════╣
 ║   Port    : ${PORT.toString().padEnd(45)}║
 ║   Env     : ${(process.env.NODE_ENV || 'development').padEnd(45)}║
-║   API Key : ${(process.env.API_KEY ? '✅ Configured' : '❌ Missing').padEnd(45)}║
+║   Storage : CSV-based                              ║
 ╠════════════════════════════════════════════════════╣
-║   Available Endpoints:                             ║
+║   🌱 Soil API Endpoints:                           ║
+║   • GET  /api/soil/health                          ║
+║   • GET  /api/soil/soil-data?state=                ║
+║   • GET  /api/soil/soil-insights?state=            ║
+║   • GET  /api/soil/states                          ║
+║   • GET  /api/soil/districts?state=                ║
+║   • GET  /api/soil/compare?states=                 ║
+║   • GET  /api/soil/statistics/:state               ║
+║   • POST /api/soil/filter                          ║
+║   • GET  /api/soil/crops?state=                    ║
+║                                                    ║
+║   💹 Market API Endpoints:                          ║
 ║   • GET  /api/dashboard                            ║
 ║   • GET  /api/trends                               ║
 ║   • GET  /api/available-states                     ║
 ║   • GET  /api/available-commodities                ║
 ║   • GET  /api/market-data                          ║
-║   • GET  /api/health                               ║
 ╚════════════════════════════════════════════════════╝
-  `);
+      `);
 
-  // Validate environment variables
-  if (!process.env.API_KEY) {
-    console.warn(`⚠️  Warning: API_KEY not set in environment variables`);
+      // Validate environment variables
+      if (!process.env.API_KEY) {
+        console.warn(`⚠️  Warning: API_KEY not set in environment variables`);
+      }
+    });
+
+    return server;
+  } catch (error) {
+    console.error('❌ Failed to start server:', error.message);
+    process.exit(1);
   }
+}
+
+// Start the server
+let server;
+startServer().then(srv => {
+  server = srv;
+}).catch(error => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
 });
 
 /**
@@ -211,18 +294,22 @@ const server = app.listen(PORT, () => {
 
 process.on('SIGTERM', () => {
   console.log('SIGTERM received. Gracefully shutting down...');
-  server.close(() => {
-    console.log('✅ Server closed');
-    process.exit(0);
-  });
+  if (server) {
+    server.close(() => {
+      console.log('✅ Server closed');
+      process.exit(0);
+    });
+  }
 });
 
 process.on('SIGINT', () => {
   console.log('SIGINT received. Gracefully shutting down...');
-  server.close(() => {
-    console.log('✅ Server closed');
-    process.exit(0);
-  });
+  if (server) {
+    server.close(() => {
+      console.log('✅ Server closed');
+      process.exit(0);
+    });
+  }
 });
 
 // Handle uncaught exceptions

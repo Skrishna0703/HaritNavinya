@@ -41,6 +41,13 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+output.log
+
+# npm
+npm-shrinkwrap.json
+.npm/
+*.tgz
+.npmrc
 
 # Runtime data
 pids/
@@ -73,3 +80,21 @@ frontend/node_modules/
 frontend/.env
 frontend/.env.local
 frontend/dist/
+
+# VS Code Specific
+.history/
+.eslintcache
+.prettier*
+
+# Development Tooling
+.turbo/
+dump.rdb
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# IDE cache and history
+.idea/*
+!.idea/runConfigurations/
