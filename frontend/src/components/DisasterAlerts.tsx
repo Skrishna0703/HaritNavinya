@@ -62,7 +62,8 @@ export default function DisasterAlerts({ onBack }) {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:4000/api/disaster/alerts")
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+    fetch(`${API_BASE}/api/disaster/alerts`)
       .then((r) => r.json())
       .then((data) => {
         const alertsWithCoords = (data.alerts || data || []).map((a) => ({
@@ -91,7 +92,8 @@ export default function DisasterAlerts({ onBack }) {
   }, []);
 
   useEffect(() => {
-    const socket = io("http://localhost:4000", { transports: ["websocket", "polling"] });
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+    const socket = io(API_BASE, { transports: ["websocket", "polling"] });
     socket.on("connect", () => { setConnected(true); console.log(" Connected"); });
     socket.on("alert:new", (newAlert) => {
       const alertWithCoords = {

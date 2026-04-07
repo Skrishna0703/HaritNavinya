@@ -74,7 +74,8 @@ export const DisasterAlerts = ({ onBack }: { onBack: () => void }) => {
 
   useEffect(() => {
     let mounted = true;
-    fetch("http://localhost:4000/api/disaster/alerts")
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+    fetch(`${API_BASE}/api/disaster/alerts`)
       .then((r) => r.json())
       .then((data) => {
         if (!mounted) return;
@@ -99,7 +100,8 @@ export const DisasterAlerts = ({ onBack }: { onBack: () => void }) => {
   }, []);
 
   useEffect(() => {
-    const socket = io("http://localhost:4000");
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+    const socket = io(API_BASE);
     socketRef.current = socket;
     socket.on("connect", () => socket.emit("subscribe_state", { state: "India" }));
     socket.on("alert:new", (newAlert: any) => {

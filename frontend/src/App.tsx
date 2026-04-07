@@ -133,7 +133,8 @@ function AppContent() {
               const { latitude, longitude } = position.coords;
               try {
                 // Fetch weather from our backend API (port 4000)
-                const response = await fetch(`http://localhost:4000/api/weather?lat=${latitude}&lon=${longitude}`);
+                const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+                const response = await fetch(`${API_BASE}/api/weather?lat=${latitude}&lon=${longitude}`);
                 if (response.ok) {
                   const data = await response.json();
                   
@@ -197,7 +198,8 @@ function AppContent() {
       try {
         setMarketLoading(true);
         // Fetch from Maharashtra (default state)
-        const response = await fetch('http://localhost:5000/api/dashboard?state=Maharashtra');
+        const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+        const response = await fetch(`${API_BASE}/api/dashboard?state=Maharashtra`);
         if (response.ok) {
           const data = await response.json();
           // Format prices for display

@@ -62,9 +62,10 @@ export function MarketPriceForecast({ onBack }: MarketPriceForecastProps) {
   const fetchAllIndiaData = async () => {
     try {
       setAllIndiaLoading(true);
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
       
       // Get list of available states first
-      const statesRes = await fetch('http://localhost:5000/api/available-states', {
+      const statesRes = await fetch(`${API_BASE}/api/available-states`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         signal: AbortSignal.timeout(5000)
@@ -83,7 +84,7 @@ export function MarketPriceForecast({ onBack }: MarketPriceForecastProps) {
       // Fetch data for each state with longer timeout for all 36 states
       const stateDataPromises = states.map(async (state: string) => {
         try {
-          const response = await fetch(`http://localhost:5000/api/dashboard?state=${state}`, {
+          const response = await fetch(`${API_BASE}/api/dashboard?state=${state}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             signal: AbortSignal.timeout(45000)
@@ -126,10 +127,11 @@ export function MarketPriceForecast({ onBack }: MarketPriceForecastProps) {
   const fetchAllCrops = async () => {
     try {
       setAllCropsLoading(true);
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
       const cropsDataByState: { [state: string]: MarketPrice[] } = {};
       
       // Get list of available states
-      const statesRes = await fetch('http://localhost:5000/api/available-states', {
+      const statesRes = await fetch(`${API_BASE}/api/available-states`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         signal: AbortSignal.timeout(5000)
@@ -150,7 +152,7 @@ export function MarketPriceForecast({ onBack }: MarketPriceForecastProps) {
         try {
           // Use dashboard endpoint to get all commodities for a state
           const mandiRes = await fetch(
-            `http://localhost:5000/api/dashboard?state=${state}`,
+            `${API_BASE}/api/dashboard?state=${state}`,
             {
               method: 'GET',
               headers: { 'Content-Type': 'application/json' },
