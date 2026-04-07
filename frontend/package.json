@@ -56,11 +56,11 @@
       "devDependencies": {
             "@types/node": "^20.10.0",
             "@vitejs/plugin-react-swc": "^3.10.2",
-            "vite": "6.3.5"
+            "vite": "^6.4.2"
       },
       "scripts": {
             "dev": "vite",
-            "build": "npm install && vite build",
-            "start": "vite preview"
+            "build": "npm install && npx vite build",
+            "start": "npx vite preview"
       }
 }
