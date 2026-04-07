@@ -1,7 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const weatherRoutes = require('./routes/weather.routes');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import weatherRoutes from './routes/weather.routes.js';
 
 dotenv.config();
 
@@ -11,7 +11,7 @@ app.use(express.json());
 
 app.use('/api/weather', weatherRoutes);
 
-const PORT = process.env.PORT || 5000;
+const PORT = 4000; // Weather service port
 app.listen(PORT, () => {
   console.log(`Weather backend listening on port ${PORT}`);
 });

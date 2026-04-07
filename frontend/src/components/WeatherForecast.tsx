@@ -59,56 +59,6 @@ export function WeatherForecast({ onBack }: WeatherForecastProps) {
   const forecastDates = generateFutureDates(7);
   const rainfallDates = generateFutureDates(15);
 
-  // Fallback weather data with dynamic dates
-  const fallbackWeather = {
-    currentWeather: {
-      temperature: 28,
-      condition: 'Partly Cloudy',
-      humidity: 65,
-      windSpeed: 12,
-      visibility: 10,
-      pressure: 1013,
-      feelsLike: 26,
-      uvIndex: 6
-    },
-    weeklyForecast: [
-      { date: forecastDates[0], temp: 27, minTemp: 22, maxTemp: 32, condition: 'Sunny', rainProbability: 10 },
-      { date: forecastDates[1], temp: 26, minTemp: 21, maxTemp: 31, condition: 'Sunny', rainProbability: 5 },
-      { date: forecastDates[2], temp: 25, minTemp: 20, maxTemp: 29, condition: 'Partly Cloudy', rainProbability: 30 },
-      { date: forecastDates[3], temp: 24, minTemp: 19, maxTemp: 28, condition: 'Rainy', rainProbability: 75 },
-      { date: forecastDates[4], temp: 23, minTemp: 18, maxTemp: 27, condition: 'Rainy', rainProbability: 80 },
-      { date: forecastDates[5], temp: 25, minTemp: 20, maxTemp: 30, condition: 'Sunny', rainProbability: 15 },
-      { date: forecastDates[6], temp: 26, minTemp: 21, maxTemp: 31, condition: 'Sunny', rainProbability: 10 }
-    ],
-    hourlyForecast: [
-      { time: '12:00 AM', temp: 22, rainProbability: 10, weather: 'Clear' },
-      { time: '3:00 AM', temp: 20, rainProbability: 5, weather: 'Clear' },
-      { time: '6:00 AM', temp: 19, rainProbability: 0, weather: 'Clear' },
-      { time: '9:00 AM', temp: 24, rainProbability: 0, weather: 'Sunny' },
-      { time: '12:00 PM', temp: 28, rainProbability: 5, weather: 'Partly Cloudy' },
-      { time: '3:00 PM', temp: 30, rainProbability: 10, weather: 'Partly Cloudy' },
-      { time: '6:00 PM', temp: 26, rainProbability: 15, weather: 'Cloudy' },
-      { time: '9:00 PM', temp: 23, rainProbability: 20, weather: 'Cloudy' }
-    ],
-    rainfallData: [
-      { date: rainfallDates[0], rainfall: 0, temperature: 28 },
-      { date: rainfallDates[1], rainfall: 2, temperature: 27 },
-      { date: rainfallDates[2], rainfall: 5, temperature: 25 },
-      { date: rainfallDates[3], rainfall: 35, temperature: 24 },
-      { date: rainfallDates[4], rainfall: 40, temperature: 23 },
-      { date: rainfallDates[5], rainfall: 15, temperature: 25 },
-      { date: rainfallDates[6], rainfall: 5, temperature: 26 },
-      { date: rainfallDates[7], rainfall: 0, temperature: 27 },
-      { date: rainfallDates[8], rainfall: 0, temperature: 28 },
-      { date: rainfallDates[9], rainfall: 3, temperature: 26 },
-      { date: rainfallDates[10], rainfall: 8, temperature: 25 },
-      { date: rainfallDates[11], rainfall: 12, temperature: 26 },
-      { date: rainfallDates[12], rainfall: 20, temperature: 27 },
-      { date: rainfallDates[13], rainfall: 10, temperature: 28 },
-      { date: rainfallDates[14], rainfall: 2, temperature: 29 }
-    ]
-  };
-
   const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
   function generateDefaultFarmingAdvice() {
@@ -173,8 +123,18 @@ export function WeatherForecast({ onBack }: WeatherForecastProps) {
           console.log('✅ Weather data received:', data);
           
           // Check if API dates are current (not stale)
+          const parseDate = (dateStr: string) => {
+            // Handle format like "Apr 07" or "April 07"
+            const today = new Date();
+            const currentMonth = today.toLocaleDateString('en-US', { month: 'short' });
+            const currentDay = today.getDate();
+            const isToday = dateStr.includes(`${currentMonth} ${String(currentDay).padStart(2, ' ')}`);
+            const isFuture = dateStr >= new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            return isToday || isFuture;
+          };
+          
           const isCurrentDate = data.weeklyForecast && data.weeklyForecast[0] && 
-                                data.weeklyForecast[0].date?.includes('Mar 23');
+                                parseDate(data.weeklyForecast[0].date || '');
           
           if (isCurrentDate) {
             // Use real API data if dates are current
@@ -218,24 +178,24 @@ export function WeatherForecast({ onBack }: WeatherForecastProps) {
         setWeatherAlerts(generateDefaultWeatherAlerts());
         setFarmingAdvice(generateDefaultFarmingAdvice());
       } else {
-        console.warn('⚠️ No response from API - using fallback');
+        console.warn('⚠️ No response from API');
         setError('Could not connect to weather service');
-        setCurrentWeather(fallbackWeather.currentWeather);
-        setWeeklyForecast(fallbackWeather.weeklyForecast);
-        setHourlyForecast(fallbackWeather.hourlyForecast);
-        setRainfallData(fallbackWeather.rainfallData);
-        setWeatherAlerts(generateDefaultWeatherAlerts());
-        setFarmingAdvice(generateDefaultFarmingAdvice());
+        setCurrentWeather(null);
+        setWeeklyForecast([]);
+        setHourlyForecast([]);
+        setRainfallData([]);
+        setWeatherAlerts([]);
+        setFarmingAdvice([]);
       }
     } catch (err) {
       console.error('🔴 Fetch error:', err instanceof Error ? err.message : String(err));
-      setError('Network error - using local data');
-      setCurrentWeather(fallbackWeather.currentWeather);
-      setWeeklyForecast(fallbackWeather.weeklyForecast);
-      setHourlyForecast(fallbackWeather.hourlyForecast);
-      setRainfallData(fallbackWeather.rainfallData);
-      setWeatherAlerts(generateDefaultWeatherAlerts());
-      setFarmingAdvice(generateDefaultFarmingAdvice());
+      setError('Network error - please check your connection');
+      setCurrentWeather(null);
+      setWeeklyForecast([]);
+      setHourlyForecast([]);
+      setRainfallData([]);
+      setWeatherAlerts([]);
+      setFarmingAdvice([]);
     } finally {
       setLoading(false);
     }

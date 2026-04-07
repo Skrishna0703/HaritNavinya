@@ -61,16 +61,49 @@ const weatherDatabase = {
   }
 };
 
+// Generate dynamic weekly forecast starting from today
+function generateWeeklyForecast() {
+  const today = new Date();
+  const template = [
+    { high: 32, low: 22, condition: 'Sunny', rainProbability: 0, temp: 28 },
+    { high: 31, low: 21, condition: 'Sunny', rainProbability: 5, temp: 27 },
+    { high: 29, low: 20, condition: 'Partly Cloudy', rainProbability: 20, temp: 25 },
+    { high: 28, low: 19, condition: 'Rainy', rainProbability: 80, temp: 23 },
+    { high: 27, low: 18, condition: 'Rainy', rainProbability: 70, temp: 22 },
+    { high: 30, low: 20, condition: 'Sunny', rainProbability: 10, temp: 26 },
+    { high: 33, low: 23, condition: 'Sunny', rainProbability: 0, temp: 29 }
+  ];
+  
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  
+  return template.map((item, idx) => {
+    const forecastDate = new Date(today);
+    forecastDate.setDate(forecastDate.getDate() + idx);
+    const dateStr = forecastDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const dayStr = days[forecastDate.getDay()];
+    return {
+      day: dayStr,
+      date: dateStr,
+      ...item
+    };
+  });
+}
+
+// Generate dynamic rainfall forecast starting from today
+function generateRainfallForecast() {
+  const today = new Date();
+  const template = [0, 2, 5, 45, 38, 8, 0, 2, 12, 25, 15, 3, 0, 0, 5];
+  
+  return template.map((rainfall, idx) => {
+    const forecastDate = new Date(today);
+    forecastDate.setDate(forecastDate.getDate() + idx);
+    const dateStr = forecastDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return { date: dateStr, rainfall };
+  });
+}
+
 // Weekly forecast template
-const weeklyForecastTemplate = [
-  { day: 'Mon', date: 'Nov 24', high: 32, low: 22, condition: 'Sunny', rainProbability: 0, temp: 28 },
-  { day: 'Tue', date: 'Nov 25', high: 31, low: 21, condition: 'Sunny', rainProbability: 5, temp: 27 },
-  { day: 'Wed', date: 'Nov 26', high: 29, low: 20, condition: 'Partly Cloudy', rainProbability: 20, temp: 25 },
-  { day: 'Thu', date: 'Nov 27', high: 28, low: 19, condition: 'Rainy', rainProbability: 80, temp: 23 },
-  { day: 'Fri', date: 'Nov 28', high: 27, low: 18, condition: 'Rainy', rainProbability: 70, temp: 22 },
-  { day: 'Sat', date: 'Nov 29', high: 30, low: 20, condition: 'Sunny', rainProbability: 10, temp: 26 },
-  { day: 'Sun', date: 'Nov 30', high: 33, low: 23, condition: 'Sunny', rainProbability: 0, temp: 29 }
-];
+const weeklyForecastTemplate = generateWeeklyForecast();
 
 // Hourly forecast template
 const hourlyForecastTemplate = [
@@ -85,23 +118,7 @@ const hourlyForecastTemplate = [
 ];
 
 // 15-day rainfall forecast
-const rainfallForecastTemplate = [
-  { date: 'Nov 24', rainfall: 0 },
-  { date: 'Nov 25', rainfall: 2 },
-  { date: 'Nov 26', rainfall: 5 },
-  { date: 'Nov 27', rainfall: 45 },
-  { date: 'Nov 28', rainfall: 38 },
-  { date: 'Nov 29', rainfall: 8 },
-  { date: 'Nov 30', rainfall: 0 },
-  { date: 'Dec 1', rainfall: 2 },
-  { date: 'Dec 2', rainfall: 12 },
-  { date: 'Dec 3', rainfall: 25 },
-  { date: 'Dec 4', rainfall: 15 },
-  { date: 'Dec 5', rainfall: 3 },
-  { date: 'Dec 6', rainfall: 0 },
-  { date: 'Dec 7', rainfall: 0 },
-  { date: 'Dec 8', rainfall: 5 }
-];
+const rainfallForecastTemplate = generateRainfallForecast();
 
 // Weather alerts
 const weatherAlertsTemplate = [

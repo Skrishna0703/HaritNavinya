@@ -1,4 +1,4 @@
-const weatherService = require('../services/weather.service');
+import { fetchWeatherByCoords } from '../services/weather.service.js';
 
 async function getWeatherByCoords(req, res) {
   try {
@@ -7,7 +7,7 @@ async function getWeatherByCoords(req, res) {
       return res.status(400).json({ error: 'lat and lon query parameters are required' });
     }
 
-    const data = await weatherService.fetchWeatherByCoords(lat, lon);
+    const data = await fetchWeatherByCoords(lat, lon);
     return res.json(data);
   } catch (err) {
     console.error('Weather controller error:', err);
@@ -15,4 +15,4 @@ async function getWeatherByCoords(req, res) {
   }
 }
 
-module.exports = { getWeatherByCoords };
+export { getWeatherByCoords };

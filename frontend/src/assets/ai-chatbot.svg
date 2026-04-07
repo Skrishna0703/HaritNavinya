@@ -1,0 +1,12 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Chat bubbles -->
+  <path d="M 8 20 L 28 20 Q 32 20 32 24 L 32 36 Q 32 40 28 40 L 12 40 L 8 46 L 12 40 L 8 40 Q 4 40 4 36 L 4 24 Q 4 20 8 20Z" fill="#F97316" opacity="0.2" stroke="#F97316" stroke-width="1.5"/>
+  <path d="M 32 28 L 52 28 Q 56 28 56 32 L 56 44 Q 56 48 52 48 L 40 48 L 36 54 L 40 48 L 36 48 Q 32 48 32 44 L 32 32 Q 32 28 36 28 L 32 28Z" fill="#F97316" opacity="0.4" stroke="#F97316" stroke-width="1.5"/>
+  <!-- Text lines in bubbles (representing chat) -->
+  <line x1="12" y1="26" x2="22" y2="26" stroke="#F97316" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/>
+  <line x1="12" y1="32" x2="24" y2="32" stroke="#F97316" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/>
+  <line x1="40" y1="34" x2="50" y2="34" stroke="#F97316" stroke-width="1.5" opacity="0.8" stroke-linecap="round"/>
+  <line x1="40" y1="40" x2="52" y2="40" stroke="#F97316" stroke-width="1.5" opacity="0.8" stroke-linecap="round"/>
+  <!-- Dot indicator (active) -->
+  <circle cx="44" cy="22" r="2.5" fill="#10B981"/>
+</svg>

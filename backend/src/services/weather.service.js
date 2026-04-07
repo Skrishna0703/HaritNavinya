@@ -1,4 +1,4 @@
-const apiClient = require('../utils/apiClient');
+import apiClient from '../utils/apiClient.js';
 
 function safeNum(v, fallback = 0) {
   return typeof v === 'number' ? v : fallback;
@@ -51,7 +51,10 @@ async function fetchWeatherByCoords(lat, lon) {
 
     // Process daily forecast (5 days, one entry per day at noon)
     const dailyMap = {};
-    (forecast.list || []).forEach(item => {
+    const today = new Date();
+    let currentDayIndex = 0;
+    
+    (forecast.list || []).forEach((item, idx) => {
       const date = new Date(item.dt * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       if (!dailyMap[date]) {
         dailyMap[date] = [];
@@ -59,13 +62,20 @@ async function fetchWeatherByCoords(lat, lon) {
       dailyMap[date].push(item);
     });
 
-    const daily = Object.entries(dailyMap).slice(0, 7).map(([date, items]) => {
+    const daily = Object.entries(dailyMap).slice(0, 7).map(([apiDate, items], idx) => {
+      // Generate current date starting from today
+      const forecastDate = new Date(today);
+      forecastDate.setDate(forecastDate.getDate() + idx);
+      const currentDate = forecastDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      
+      console.log(`[Weather] Processing day ${idx}: API date=${apiDate}, Current date being used=${currentDate}, Server today=${today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`);
+      
       const temps = items.map(i => i.main?.temp).filter(t => t);
       const rains = items.map(i => i.pop || 0);
       const conditions = items.map(i => i.weather?.[0]?.description || '');
       
       return {
-        date,
+        date: currentDate,
         temp: Math.round((Math.max(...temps) + Math.min(...temps)) / 2),
         minTemp: Math.min(...temps),
         maxTemp: Math.max(...temps),
@@ -76,12 +86,18 @@ async function fetchWeatherByCoords(lat, lon) {
       };
     });
 
-    // Build rainfallData for chart
-    const rainfallData = Object.entries(dailyMap).slice(0, 15).map(([date, items]) => ({
-      date,
-      rainfall: items.reduce((s, i) => s + (i.rain?.['3h'] || 0), 0),
-      temperature: safeNum(items[0]?.main?.temp)
-    }));
+    // Build rainfallData for chart with current dates
+    const rainfallData = Object.entries(dailyMap).slice(0, 15).map(([apiDate, items], idx) => {
+      const forecastDate = new Date(today);
+      forecastDate.setDate(forecastDate.getDate() + idx);
+      const currentDate = forecastDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      
+      return {
+        date: currentDate,
+        rainfall: items.reduce((s, i) => s + (i.rain?.['3h'] || 0), 0),
+        temperature: safeNum(items[0]?.main?.temp)
+      };
+    });
 
     // Mock alerts (OpenWeather 2.5 doesn't include alerts)
     const alerts = [];
@@ -139,5 +155,5 @@ async function fetchWeatherByCoords(lat, lon) {
   }
 }
 
-module.exports = { fetchWeatherByCoords };
+export { fetchWeatherByCoords };
 
