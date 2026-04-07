@@ -60,7 +60,7 @@
       },
       "scripts": {
             "dev": "vite",
-            "build": "npm install && npx vite build",
+            "build": "npx vite build",
             "start": "npx vite preview"
       }
 }
