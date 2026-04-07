@@ -7,8 +7,6 @@ import { Badge } from "./ui/badge";
 import { 
   MapPin, 
   ArrowLeft,
-  Phone,
-  Calendar,
   Navigation,
   Star,
   Clock,
@@ -19,114 +17,117 @@ import {
   User,
   CheckCircle
 } from "lucide-react";
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Leaflet Popup Styles
+const popupStyles = `
+  .soil-popup .leaflet-popup-content-wrapper {
+    background: white !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    padding: 0 !important;
+  }
+  .soil-popup .leaflet-popup-content {
+    margin: 0 !important;
+    width: 100% !important;
+  }
+  .soil-popup .leaflet-popup-tip {
+    background: white !important;
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleTag = document.createElement('style');
+  styleTag.innerHTML = popupStyles;
+  document.head.appendChild(styleTag);
+}
+
+// Custom marker icon
+const createMarkerIcon = () => L.icon({
+  iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSIjRUYwMDAwIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMiIgZD0iTTEyIDJDNy4wMyAyIDMgNi4wMyAzIDExYzAgNS4yNSA5IDEzIDkgMTNzOSAtNy43NSA5IC0xM2MwIC00Ljk3IC00LjAzIC05IC05IC05em0wIDcuNWMtMC44MjggMCAtMS41IC0wLjY3MiAtMS41IC0xLjVzMC42NzIgLTEuNSAxLjUgLTEuNXMxLjUgMC42NzIgMS41IDEuNXMtMC42NzIgMS41IC0xLjUgMS41eiIvPjwvc3ZnPg==',
+  iconSize: [32, 41],
+  iconAnchor: [16, 41],
+  popupAnchor: [0, -41],
+  shadowUrl: undefined,
+});
 
 interface SoilTestingCentersProps {
   onBack: () => void;
 }
 
 export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
-  const [viewMode, setViewMode] = useState<'map' | 'list'>('list');
+  const [viewMode, setViewMode] = useState<'map' | 'list' | 'coming-soon'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterBy, setFilterBy] = useState('distance');
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedDistrict, setSelectedDistrict] = useState('');
+  const [testingCenters, setTestingCenters] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const testingCenters = [
-    {
-      name: "Pune Agricultural Research Center",
-      address: "Shivajinagar, Pune, Maharashtra 411005",
-      distance: 2.5,
-      rating: 4.8,
-      contact: "+91 20 2553 4567",
-      email: "pune.agri@gov.in",
-      timings: "9:00 AM - 5:00 PM",
-      services: ["Soil pH Testing", "NPK Analysis", "Micronutrient Testing", "Organic Matter"],
-      price: "₹150 - ₹500",
-      waitTime: "2-3 days",
-      availability: "Available",
-      type: "Government",
-      features: ["Online Booking", "Home Collection", "Digital Reports"]
-    },
-    {
-      name: "Maharashtra Soil Testing Laboratory",
-      address: "Aundh, Pune, Maharashtra 411007",
-      distance: 4.2,
-      rating: 4.5,
-      contact: "+91 20 2588 9012",
-      email: "soiltest.mh@gmail.com",
-      timings: "8:30 AM - 6:00 PM",
-      services: ["Complete Soil Analysis", "Water Testing", "Fertilizer Recommendation"],
-      price: "₹200 - ₹800",
-      waitTime: "1-2 days",
-      availability: "Available",
-      type: "Government",
-      features: ["Express Service", "Multilingual Reports", "Expert Consultation"]
-    },
-    {
-      name: "Krishi Vigyan Kendra - Pune",
-      address: "Ganeshkhind, Pune, Maharashtra 411007",
-      distance: 6.8,
-      rating: 4.6,
-      contact: "+91 20 2569 1234",
-      email: "kvk.pune@icar.gov.in",
-      timings: "9:00 AM - 4:30 PM",
-      services: ["Soil Health Card", "Nutrient Management", "Crop Advisory"],
-      price: "₹100 - ₹400",
-      waitTime: "3-4 days",
-      availability: "Busy",
-      type: "Research",
-      features: ["Free for Small Farmers", "Training Programs", "Follow-up Support"]
-    },
-    {
-      name: "AgroTech Soil Labs",
-      address: "Baner, Pune, Maharashtra 411045",
-      distance: 8.1,
-      rating: 4.3,
-      contact: "+91 98765 43210",
-      email: "info@agrotechsoil.com",
-      timings: "8:00 AM - 7:00 PM",
-      services: ["Advanced Soil Testing", "Precision Agriculture", "GPS Mapping"],
-      price: "₹300 - ₹1200",
-      waitTime: "Same Day",
-      availability: "Available",
-      type: "Private",
-      features: ["Drone Sampling", "AI Analysis", "Mobile Lab Service"]
-    },
-    {
-      name: "Rural Development Center",
-      address: "Hadapsar, Pune, Maharashtra 411028",
-      distance: 12.3,
-      rating: 4.2,
-      contact: "+91 20 2668 5678",
-      email: "rdc.hadapsar@maharashtra.gov.in",
-      timings: "10:00 AM - 5:00 PM",
-      services: ["Basic Soil Testing", "Farmer Education", "Subsidy Programs"],
-      price: "₹80 - ₹300",
-      waitTime: "4-5 days",
-      availability: "Available",
-      type: "Government",
-      features: ["Subsidized Rates", "Group Testing", "Field Visits"]
-    },
-    {
-      name: "Green Valley Laboratories",
-      address: "Kothrud, Pune, Maharashtra 411038",
-      distance: 15.7,
-      rating: 4.7,
-      contact: "+91 98901 23456",
-      email: "contact@greenvalleylabs.in",
-      timings: "7:00 AM - 8:00 PM",
-      services: ["Comprehensive Analysis", "Organic Certification", "Research Support"],
-      price: "₹400 - ₹1500",
-      waitTime: "1 day",
-      availability: "Available",
-      type: "Private",
-      features: ["24/7 Support", "International Standards", "Research Collaboration"]
-    }
-  ];
+  // Load data from JSON file
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        const response = await fetch('/soil-testing-centers.json');
+        const data = await response.json();
+        setTestingCenters(data);
+      } catch (error) {
+        console.error('Error loading soil testing centers:', error);
+        // Fallback to default centers if JSON fails to load
+        setTestingCenters([
+          {
+            id: 1,
+            name: "District Soil Testing Laboratory Pune",
+            state: "Maharashtra",
+            district: "Pune",
+            address: "Shivajinagar, Pune, Maharashtra, 411005, India",
+            pincode: "411005",
+            contact: "+919876543210",
+            latitude: 18.5204,
+            longitude: 73.8567,
+            rating: 4.6,
+            services: ["Soil pH Testing", "NPK Analysis", "Micronutrient Testing"],
+            features: ["Online Booking", "Home Collection"],
+            price: "₹150 - ₹500",
+            turnaround: "2-3 days",
+            timings: "9:00 AM - 5:00 PM",
+            type: "Government"
+          }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Get unique states
+  const states = Array.from(new Set(testingCenters.map(center => center.state))).sort();
+
+  // Get unique districts for selected state
+  const districts = selectedState 
+    ? Array.from(new Set(
+        testingCenters
+          .filter(center => center.state === selectedState)
+          .map(center => center.district)
+      )).sort()
+    : [];
 
   const filteredCenters = testingCenters
-    .filter(center => 
-      center.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      center.address.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    .filter(center => {
+      const matchesSearch = 
+        center.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        center.address.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesState = !selectedState || center.state === selectedState;
+      const matchesDistrict = !selectedDistrict || center.district === selectedDistrict;
+      
+      return matchesSearch && matchesState && matchesDistrict;
+    })
     .sort((a, b) => {
       switch (filterBy) {
         case 'distance': return a.distance - b.distance;
@@ -156,6 +157,16 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
 
   return (
     <div className="min-h-screen bg-white font-['Poppins',sans-serif]">
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 text-center shadow-2xl">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-blue-500 mx-auto mb-4"></div>
+            <p className="text-lg font-semibold text-gray-700">Loading Soil Testing Centers Across India...</p>
+            <p className="text-sm text-gray-500 mt-2">Please wait while we fetch the latest data</p>
+          </div>
+        </div>
+      )}
+      
       {/* Header */}
       <header className="bg-gradient-to-r from-green-600 to-blue-500 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -192,8 +203,9 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
         {/* Search and Filters */}
         <Card className="border-0 shadow-xl rounded-3xl overflow-hidden mb-8">
           <CardContent className="p-8">
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-              <div className="flex-1 flex gap-4">
+            <div className="flex flex-col gap-4">
+              {/* First Row: Search */}
+              <div className="flex flex-col md:flex-row gap-4 items-center">
                 <div className="relative flex-1">
                   <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <Input
@@ -203,71 +215,298 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
                     className="pl-10"
                   />
                 </div>
-                
-                <div className="flex items-center gap-2">
-                  <Filter className="w-5 h-5 text-gray-500" />
-                  <Select value={filterBy} onValueChange={setFilterBy}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="distance">Distance</SelectItem>
-                      <SelectItem value="rating">Rating</SelectItem>
-                      <SelectItem value="price">Price</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
 
-              <div className="flex gap-2">
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'outline'}
-                  onClick={() => setViewMode('list')}
-                  className="flex items-center gap-2"
-                >
-                  <List className="w-4 h-4" />
-                  List View
-                </Button>
-                <Button
-                  variant={viewMode === 'map' ? 'default' : 'outline'}
-                  onClick={() => setViewMode('map')}
-                  className="flex items-center gap-2"
-                >
-                  <Map className="w-4 h-4" />
-                  Map View
-                </Button>
+              {/* Second Row: Filters */}
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div className="flex flex-1 gap-3 items-center flex-wrap">
+                  {/* State Filter */}
+                  <div className="flex items-center gap-2 min-w-max">
+                    <MapPin className="w-5 h-5 text-gray-500" />
+                    <Select value={selectedState} onValueChange={(value) => {
+                      setSelectedState(value);
+                      setSelectedDistrict(''); // Reset district when state changes
+                    }}>
+                      <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Select State" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {states.map(state => (
+                          <SelectItem key={state} value={state}>{state}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* District Filter */}
+                  {selectedState && (
+                    <div className="flex items-center gap-2 min-w-max">
+                      <MapPin className="w-5 h-5 text-gray-500" />
+                      <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
+                        <SelectTrigger className="w-48">
+                          <SelectValue placeholder="Select District" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {districts.map(district => (
+                            <SelectItem key={district} value={district}>{district}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {/* Sort Filter */}
+                  <div className="flex items-center gap-2 min-w-max">
+                    <Filter className="w-5 h-5 text-gray-500" />
+                    <Select value={filterBy} onValueChange={setFilterBy}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Sort by" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="distance">Distance</SelectItem>
+                        <SelectItem value="rating">Rating</SelectItem>
+                        <SelectItem value="price">Price</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Clear Filters */}
+                  {(selectedState || selectedDistrict || searchQuery) && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedState('');
+                        setSelectedDistrict('');
+                        setSearchQuery('');
+                      }}
+                      className="text-xs"
+                    >
+                      Clear All
+                    </Button>
+                  )}
+                </div>
+
+                {/* View Mode Buttons */}
+                <div className="flex gap-2">
+                  <Button
+                    variant={viewMode === 'list' ? 'default' : 'outline'}
+                    onClick={() => setViewMode('list')}
+                    className="flex items-center gap-2"
+                  >
+                    <List className="w-4 h-4" />
+                    List View
+                  </Button>
+                  <Button
+                    variant={viewMode === 'map' ? 'default' : 'outline'}
+                    onClick={() => setViewMode('map')}
+                    className="flex items-center gap-2"
+                  >
+                    <Map className="w-4 h-4" />
+                    Map View
+                  </Button>
+                  <Button
+                    variant={viewMode === 'coming-soon' ? 'default' : 'outline'}
+                    onClick={() => setViewMode('coming-soon')}
+                    className="flex items-center gap-2"
+                  >
+                    <span className="text-base">⭐</span>
+                    Coming Soon
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
+        {/* Results Summary */}
+        <div className="mb-6 bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-6 border-2 border-blue-200">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="text-center p-3 bg-white rounded-lg shadow-sm border-l-4 border-blue-500">
+              <p className="text-gray-600 text-sm font-medium">Total Centers</p>
+              <p className="text-2xl font-bold text-blue-600">{testingCenters.length}</p>
+            </div>
+            <div className="text-center p-3 bg-white rounded-lg shadow-sm border-l-4 border-green-500">
+              <p className="text-gray-600 text-sm font-medium">States/UTs</p>
+              <p className="text-2xl font-bold text-green-600">{states.length}</p>
+            </div>
+            <div className="text-center p-3 bg-white rounded-lg shadow-sm border-l-4 border-purple-500">
+              <p className="text-gray-600 text-sm font-medium">Showing</p>
+              <p className="text-2xl font-bold text-purple-600">{filteredCenters.length}</p>
+            </div>
+            <div className="text-center p-3 bg-white rounded-lg shadow-sm border-l-4 border-orange-500">
+              <p className="text-gray-600 text-sm font-medium">Avg Rating</p>
+              <p className="text-2xl font-bold text-orange-600">
+                {testingCenters.length > 0 
+                  ? (testingCenters.reduce((sum, c) => sum + c.rating, 0) / testingCenters.length).toFixed(1)
+                  : '0'}
+              </p>
+            </div>
+          </div>
+          
+          {/* Active Filters Display */}
+          {(selectedState || selectedDistrict || searchQuery) && (
+            <div className="mt-4 pt-4 border-t border-blue-200 flex flex-wrap items-center gap-2">
+              <span className="text-sm font-semibold text-gray-600">Active Filters:</span>
+              {searchQuery && (
+                <Badge className="bg-blue-500 text-white">Search: "{searchQuery}"</Badge>
+              )}
+              {selectedState && (
+                <Badge className="bg-green-500 text-white">{selectedState}</Badge>
+              )}
+              {selectedDistrict && (
+                <Badge className="bg-purple-500 text-white">{selectedDistrict}</Badge>
+              )}
+            </div>
+          )}
+          
+          {filteredCenters.length === 0 && (
+            <div className="mt-4 pt-4 border-t border-blue-200">
+              <p className="text-red-500 font-semibold text-center">❌ No centers found. Try adjusting your filters.</p>
+            </div>
+          )}
+        </div>
+
         {/* Content Area */}
-        {viewMode === 'map' ? (
-          // Map View
-          <Card className="border-0 shadow-xl rounded-3xl overflow-hidden">
-            <CardContent className="p-8">
-              <div className="relative bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl h-96 flex items-center justify-center border-2 border-dashed border-gray-300">
-                <div className="text-center">
-                  <Map className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h4 className="text-lg font-medium text-gray-600 mb-2">Interactive Map View</h4>
-                  <p className="text-gray-500">Soil testing centers in Pune region with pinned locations</p>
+        {viewMode === 'coming-soon' ? (
+          // Coming Soon View
+          <Card className="border-0 shadow-2xl rounded-3xl overflow-hidden bg-white">
+            <CardContent className="p-12">
+              <div className="text-center max-w-2xl mx-auto py-12">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <span className="text-4xl">⭐</span>
                 </div>
                 
-                {/* Simulated map markers */}
-                <div className="absolute top-20 left-32 w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
-                <div className="absolute top-40 right-24 w-4 h-4 bg-blue-500 rounded-full animate-pulse"></div>
-                <div className="absolute bottom-24 left-20 w-4 h-4 bg-purple-500 rounded-full animate-pulse"></div>
-                <div className="absolute top-32 right-40 w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+                <h3 className="text-4xl font-bold text-gray-900 mb-3">Featured Centers Coming Soon!</h3>
+                <p className="text-lg text-gray-600 mb-6">
+                  We're curating the best soil testing centers with premium features and enhanced services for you.
+                </p>
                 
-                {/* Location labels */}
-                <div className="absolute top-16 left-40 bg-white px-2 py-1 rounded text-xs font-medium shadow">
-                  Pune Agricultural Research
+                <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-8 mb-8 border-2 border-blue-200">
+                  <p className="text-gray-700 mb-4 font-medium">Coming features:</p>
+                  <ul className="text-left space-y-3 text-gray-600 max-w-lg mx-auto">
+                    <li className="flex items-center gap-3">
+                      <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
+                      Premium & certified testing centers nationwide
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
+                      Real-time booking & appointment system
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
+                      Home sample collection service
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
+                      Instant digital report delivery
+                    </li>
+                  </ul>
                 </div>
-                <div className="absolute top-36 right-32 bg-white px-2 py-1 rounded text-xs font-medium shadow">
-                  Aundh Lab
+
+                <div className="grid grid-cols-3 gap-4 mb-8">
+                  <div className="bg-blue-50 rounded-xl p-4">
+                    <p className="text-2xl font-bold text-blue-600">🏥</p>
+                    <p className="text-sm text-gray-600">Premium Labs</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-xl p-4">
+                    <p className="text-2xl font-bold text-blue-600">🚗</p>
+                    <p className="text-sm text-gray-600">Home Pickup</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-xl p-4">
+                    <p className="text-2xl font-bold text-blue-600">📄</p>
+                    <p className="text-sm text-gray-600">Quick Reports</p>
+                  </div>
                 </div>
-                <div className="absolute bottom-20 left-28 bg-white px-2 py-1 rounded text-xs font-medium shadow">
-                  KVK Pune
+
+                <Button 
+                  onClick={() => setViewMode('list')}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 text-lg rounded-lg hover:shadow-lg transition-all"
+                >
+                  Explore Available Centers
+                </Button>
+
+                <p className="text-sm text-gray-500 mt-6">
+                  🚀 Premium features launching very soon • Stay tuned!
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : viewMode === 'map' ? (
+          // Interactive Leaflet Map View
+          <Card className="border-0 shadow-2xl rounded-3xl overflow-hidden">
+            <CardContent className="p-0 h-full">
+              <div style={{ width: '100%', height: '600px', borderRadius: '1.5rem', overflow: 'hidden' }}>
+                <MapContainer 
+                  center={[20.5934, 78.9629]} 
+                  zoom={5} 
+                  style={{ width: '100%', height: '100%' }}
+                  className="rounded-2xl"
+                >
+                  {/* Street Map Tiles */}
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+
+                  {/* Markers for each testing center */}
+                  {filteredCenters.map((center, index) => (
+                    <Marker 
+                      key={index}
+                      position={[center.latitude, center.longitude]}
+                      icon={createMarkerIcon()}
+                    >
+                      <Popup className="soil-popup">
+                        <div className="w-64 p-2">
+                          <p className="font-bold text-lg text-gray-800">{center.name}</p>
+                          <p className="text-sm text-gray-600 mt-1">{center.address}</p>
+                          <p className="text-sm text-gray-600">{center.district}, {center.state} {center.pincode}</p>
+                          
+                          <div className="mt-2 pt-2 border-t border-gray-200 flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                              <span className="font-bold text-green-600">{center.rating}</span>
+                            </div>
+                            <span className="text-sm text-gray-600">Type: {center.type}</span>
+                          </div>
+
+                          <p className="text-sm font-semibold text-gray-700 mt-2">
+                            📞 {center.contact}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            💰 ₹{center.price} | ⏱️ {center.turnaround} days
+                          </p>
+
+                          <button
+                            onClick={() => window.open(`https://www.google.com/maps/search/${center.name}/@${center.latitude},${center.longitude},15z`, '_blank')}
+                            className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+                          >
+                            <Navigation className="w-4 h-4" />
+                            Get Directions
+                          </button>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  ))}
+                </MapContainer>
+              </div>
+
+              {/* Info Bar Below Map */}
+              <div className="p-6 bg-gradient-to-r from-blue-50 to-green-50 border-t border-blue-200">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-red-600" />
+                      <span className="font-semibold text-gray-800">{filteredCenters.length} Centers Showing</span>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                      <span className="font-semibold">Across {states.length} States/UTs</span> across All India
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500">📍 Click on markers to view details</p>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -359,27 +598,13 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
 
                     {/* Action Buttons */}
                     <div className="space-y-4">
-                      <Button className="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white">
-                        <Phone className="w-4 h-4 mr-2" />
-                        Call Now
-                      </Button>
-                      
-                      <Button variant="outline" className="w-full border-green-300 text-green-700 hover:bg-green-50">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        Book Slot
-                      </Button>
-                      
-                      <Button variant="outline" className="w-full border-blue-300 text-blue-700 hover:bg-blue-50">
+                      <Button 
+                        onClick={() => window.open(`https://www.google.com/maps/search/${center.name}/@${center.latitude},${center.longitude},15z`, '_blank')}
+                        className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+                      >
                         <Navigation className="w-4 h-4 mr-2" />
                         Get Directions
                       </Button>
-
-                      {center.features.includes("Home Collection") && (
-                        <Button variant="outline" className="w-full border-purple-300 text-purple-700 hover:bg-purple-50">
-                          <User className="w-4 h-4 mr-2" />
-                          Home Collection
-                        </Button>
-                      )}
                     </div>
                   </div>
                 </CardContent>

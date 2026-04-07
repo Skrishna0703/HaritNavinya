@@ -97,7 +97,7 @@ export function AIChatbot({ onBack }: AIChatbotProps) {
     }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
     const userMessage: Message = {
@@ -108,21 +108,59 @@ export function AIChatbot({ onBack }: AIChatbotProps) {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const messageToSend = inputValue;
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate bot response delay
-    setTimeout(() => {
+    try {
+      // Call the real backend API
+      const response = await fetch('http://localhost:5001/api/chatbot/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: messageToSend,
+          conversationHistory: messages
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.reply) {
+        const botResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'bot',
+          content: data.reply,
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, botResponse]);
+      } else {
+        // Fallback to mock response if API fails
+        const botResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'bot',
+          content: getBotResponse(messageToSend),
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, botResponse]);
+      }
+    } catch (error) {
+      console.error('Chat API error:', error);
+      // Fallback to mock response on network error
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: getBotResponse(inputValue),
+        content: getBotResponse(messageToSend),
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, botResponse]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const handleQuickAction = (query: string) => {

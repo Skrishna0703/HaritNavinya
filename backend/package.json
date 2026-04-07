@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node src/disaster-server.js",
     "dev": "nodemon src/disaster-server.js",
+    "chatbot": "node src/chatbot-server.js",
+    "chatbot:dev": "nodemon src/chatbot-server.js",
     "weather": "nodemon src/app.js",
     "mandi": "nodemon src/server.js",
     "mandi:start": "node src/server.js",
@@ -14,6 +16,7 @@
     "server:dev": "nodemon src/server.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.3.1",
     "axios": "^1.5.0",
     "cors": "^2.8.5",
     "csv-parser": "^3.2.0",

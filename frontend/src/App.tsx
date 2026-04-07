@@ -45,7 +45,8 @@ import {
   CheckCircle,
   BookOpen,
   Sparkles,
-  TrendingUpIcon
+  TrendingUpIcon,
+  Bell
 } from "lucide-react";
 
 type PageType = 'home' | 'plant-disease' | 'market-price' | 'ai-chatbot' | 'crop-recommendation' | 'fertilizer-recommendation' | 'disaster-alerts' | 'soil-data-insights' | 'weather-forecast' | 'soil-testing-centers' | 'smart-farming-guidance' | 'farmer-officer-connect' | 'post-harvest-support';
@@ -67,6 +68,9 @@ const loadingConfig: Record<string, { message: string; gifUrl?: string }> = {
 };
 
 function AppContent() {
+  // Check if this is the first time the app has ever loaded
+  const isFirstVisit = sessionStorage.getItem('appInitialized') === null;
+  
   // Initialize from localStorage, default to 'home' if not found
   const [currentPage, setCurrentPage] = useState<PageType>(() => {
     const savedPage = localStorage.getItem('currentPage') as PageType;
@@ -81,7 +85,7 @@ function AppContent() {
   const [navPage, setNavPage] = useState('home');
   const { t } = useLanguage();
   const { isLoading, loadingMessage, startLoading, stopLoading } = useLoading();
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(isFirstVisit);
 
   // Real API data states
   const [weatherData, setWeatherData] = useState<any>(null);
@@ -89,17 +93,21 @@ function AppContent() {
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [marketLoading, setMarketLoading] = useState(false);
   
-  // Show loading on initial app load
+  // Show loading only on first visit, not on page reloads
   useEffect(() => {
-    if (isInitialLoad) {
+    if (isInitialLoad && isFirstVisit) {
+      sessionStorage.setItem('appInitialized', 'true');
       startLoading('Initializing HaritNavinya...');
       const timer = setTimeout(() => {
         stopLoading();
         setIsInitialLoad(false);
       }, 1500);
       return () => clearTimeout(timer);
+    } else if (!isFirstVisit) {
+      // If returning from a page reload, skip loading screen
+      setIsInitialLoad(false);
     }
-  }, [isInitialLoad, startLoading, stopLoading]);
+  }, []);
   
   // Save current page to localStorage whenever it changes
   useEffect(() => {
@@ -140,9 +148,13 @@ function AppContent() {
         if (response.ok) {
           const data = await response.json();
           // Format prices for display
-          const prices = data.todayPrices?.slice(0, 6).map((item: any) => {
-            const change = item.change ? (item.change > 0 ? '+' : '') + item.change : 'N/A';
-            return `${item.commodity}: ₹${item.price}/quintal (${change})`;
+          const prices = data.todayPrices?.slice(0, 8).map((item: any) => {
+            // Format change with percentage
+            const changeStr = item.change || item.change_percent ? 
+              (item.change || item.change_percent) : '+0%';
+            const changeDisplay = changeStr.toString().includes('%') ? changeStr : `${changeStr}%`;
+            // Display with emoji and proper formatting
+            return `🌾 ${item.commodity}: ₹${item.price} (${changeDisplay})`;
           }) || [];
           setMarketPricesData(prices.length > 0 ? prices : getDefaultMarketPrices());
         } else {
@@ -203,7 +215,8 @@ function AppContent() {
       gradient: "linear-gradient(135deg, #facc15, #f97316)", 
       image: "https://images.unsplash.com/photo-1664729570424-069f0c0d5ef4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aGVhdCUyMGZpZWxkJTIwY3JvcHN8ZW58MXx8fHwxNzYzNDY4NzIyfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
       route: 'crop-recommendation',
-      clickable: true 
+      clickable: true,
+      externalUrl: 'https://crop-recommendation-system-mab2cxk9afl6ausbgu5sj6.streamlit.app/'
     },
     { 
       icon: Droplets, 
@@ -213,7 +226,8 @@ function AppContent() {
       gradient: "linear-gradient(135deg, #3b82f6, #06b6d4)", 
       image: "https://images.unsplash.com/photo-1757670919588-1fe3b3df3dfa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmZXJ0aWxpemVyJTIwZ3JhbnVsZXN8ZW58MXx8fHwxNzYzNDY4NzIyfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
       route: 'fertilizer-recommendation',
-      clickable: true 
+      clickable: true,
+      externalUrl: 'https://fertilizer-recommended-app-dy840e.streamlit.app/'
     },
     { 
       icon: TrendingUp, 
@@ -812,7 +826,6 @@ function AppContent() {
                         </div>
                       </div>
                     </div>
-                  </div>
                   </div>
                   
                   <div className="space-y-4">

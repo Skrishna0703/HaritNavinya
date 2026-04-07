@@ -44,7 +44,6 @@ export function SoilDataInsights({ onBack }: SoilDataInsightsProps) {
   const [states, setStates] = useState<string[]>([]);
   const [soilData, setSoilData] = useState<SoilData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const API_BASE = 'http://localhost:5000/api/soil';
 
@@ -71,7 +70,6 @@ export function SoilDataInsights({ onBack }: SoilDataInsightsProps) {
   useEffect(() => {
     const fetchSoilInsights = async () => {
       setLoading(true);
-      setError(null);
 
       try {
         const res = await fetch(`${API_BASE}/soil-insights?state=${encodeURIComponent(selectedState)}`);
@@ -79,11 +77,9 @@ export function SoilDataInsights({ onBack }: SoilDataInsightsProps) {
 
         if (data.success) {
           setSoilData(data.data);
-        } else {
-          setError(data.error || 'Failed to fetch soil data');
         }
       } catch (err: any) {
-        setError(err.message || 'Failed to fetch soil data');
+        console.error('Error fetching soil data:', err);
       } finally {
         setLoading(false);
       }
@@ -136,22 +132,6 @@ export function SoilDataInsights({ onBack }: SoilDataInsightsProps) {
     if (lower === 'low' || lower === 'deficient') return 'text-red-600';
     return 'text-gray-600';
   };
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-white font-['Poppins',sans-serif] flex items-center justify-center">
-        <Card className="border-2 border-red-200 w-full max-w-md">
-          <CardContent className="p-8 text-center">
-            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-red-700 mb-2">Error loading soil data</h3>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <p className="text-sm text-gray-500 mb-4">Make sure the backend server is running on port 5000</p>
-            <Button onClick={onBack} className="w-full">Go Back</Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-white font-['Poppins',sans-serif]">

@@ -64,7 +64,7 @@ export function MarketPriceForecast({ onBack }: MarketPriceForecastProps) {
       setAllIndiaLoading(true);
       
       // Get list of available states first
-      const statesRes = await fetch('http://localhost:5000/api/mandi/available-states', {
+      const statesRes = await fetch('http://localhost:5000/api/available-states', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         signal: AbortSignal.timeout(5000)
@@ -83,7 +83,7 @@ export function MarketPriceForecast({ onBack }: MarketPriceForecastProps) {
       // Fetch data for each state with longer timeout for all 36 states
       const stateDataPromises = states.map(async (state: string) => {
         try {
-          const response = await fetch(`http://localhost:5000/api/mandi/dashboard?state=${state}`, {
+          const response = await fetch(`http://localhost:5000/api/dashboard?state=${state}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             signal: AbortSignal.timeout(45000)
@@ -129,7 +129,7 @@ export function MarketPriceForecast({ onBack }: MarketPriceForecastProps) {
       const cropsDataByState: { [state: string]: MarketPrice[] } = {};
       
       // Get list of available states
-      const statesRes = await fetch('http://localhost:5000/api/mandi/available-states', {
+      const statesRes = await fetch('http://localhost:5000/api/available-states', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         signal: AbortSignal.timeout(5000)
@@ -148,9 +148,9 @@ export function MarketPriceForecast({ onBack }: MarketPriceForecastProps) {
       // Fetch data for each state
       const stateDataPromises = states.map(async (state: string) => {
         try {
-          // Use mandi endpoint to get all commodities for a state
+          // Use dashboard endpoint to get all commodities for a state
           const mandiRes = await fetch(
-            `http://localhost:5000/api/mandi/dashboard?state=${state}`,
+            `http://localhost:5000/api/dashboard?state=${state}`,
             {
               method: 'GET',
               headers: { 'Content-Type': 'application/json' },

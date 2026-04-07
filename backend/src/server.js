@@ -38,8 +38,9 @@ const PORT = process.env.PORT || 5000;
 // CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:5173').split(',');
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+    const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:5173').split(',');
+    // Allow any localhost origin in development
+    if (!origin || origin.startsWith('http://localhost:') || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -56,9 +57,10 @@ app.use(cors(corsOptions));
 // Additional CORS headers for better compatibility
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:5173').split(',');
+  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:5173').split(',');
   
-  if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+  // Allow any localhost origin in development
+  if (!origin || origin.startsWith('http://localhost:') || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
     res.header('Access-Control-Allow-Origin', origin || '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
