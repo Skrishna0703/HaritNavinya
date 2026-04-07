@@ -4,7 +4,7 @@
   "main": "src/disaster-server.js",
   "type": "module",
   "scripts": {
-    "start": "node src/disaster-server.js",
+    "start": "node src/server.js",
     "dev": "nodemon src/disaster-server.js",
     "chatbot": "node src/chatbot-server.js",
     "chatbot:dev": "nodemon src/chatbot-server.js",
@@ -13,7 +13,8 @@
     "mandi:start": "node src/server.js",
     "mandi:dev": "nodemon src/server.js --exec node",
     "server": "node src/server.js",
-    "server:dev": "nodemon src/server.js"
+    "server:dev": "nodemon src/server.js",
+    "build": "echo 'Build complete'"
   },
   "dependencies": {
     "@google/generative-ai": "^0.3.1",
