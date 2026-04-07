@@ -38,7 +38,7 @@ const PORT = process.env.PORT || 5000;
 // CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:5173,https://haritnavinya.onrender.com').split(',');
+    const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:5173,https://haritnavinya.onrender.com,https://haritnavinya.netlify.app').split(',');
     // Allow any localhost origin in development
     if (!origin || origin.startsWith('http://localhost:') || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
       callback(null, true);
@@ -57,7 +57,7 @@ app.use(cors(corsOptions));
 // Additional CORS headers for better compatibility
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:5173').split(',');
+  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:5173,https://haritnavinya.onrender.com,https://haritnavinya.netlify.app').split(',');
   
   // Allow any localhost origin in development
   if (!origin || origin.startsWith('http://localhost:') || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
