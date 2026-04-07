@@ -60,7 +60,7 @@
       },
       "scripts": {
             "dev": "vite",
-            "build": "node node_modules/vite/bin/vite.js build",
-            "start": "node node_modules/vite/bin/vite.js preview"
+            "build": "vite build",
+            "start": "vite preview"
       }
 }
