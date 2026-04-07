@@ -1,21 +1,16 @@
 #!/usr/bin/env node
 
-// Custom build script to bypass shell permission issues on Render
-const { spawn } = require('child_process');
+const { spawnSync } = require('child_process');
 const path = require('path');
 
-const viteBin = path.join(__dirname, 'node_modules', 'vite', 'bin', 'vite.js');
-const args = process.argv.slice(2);
+// Direct path to vite binary
+const viteBin = path.resolve(__dirname, 'node_modules/vite/bin/vite.js');
 
-const proc = spawn('node', [viteBin, ...args], {
-  stdio: 'inherit'
+// Spawn without shell to avoid permission issues
+const result = spawnSync('node', [viteBin, 'build'], {
+  cwd: __dirname,
+  stdio: 'inherit',
+  shell: false
 });
 
-proc.on('exit', (code) => {
-  process.exit(code);
-});
-
-proc.on('error', (err) => {
-  console.error('Failed to start vite:', err);
-  process.exit(1);
-});
+process.exit(result.status ?? 1);
