@@ -4,9 +4,9 @@
   "main": "src/disaster-server.js",
   "type": "module",
   "scripts": {
-    "start": "node src/disaster-server.js",
-    "dev": "node src/disaster-server.js",
-    "dev:watch": "nodemon src/disaster-server.js",
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "dev:watch": "nodemon src/server.js",
     "start:all": "npm run mandi & npm run chatbot & npm run disaster & npm run weather",
     "dev:all": "npm run mandi:dev & npm run chatbot:dev & npm run disaster:dev & npm run weather:dev",
     "chatbot": "node src/chatbot-server.js",
