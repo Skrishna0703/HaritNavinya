@@ -68,7 +68,7 @@ export function MarketPriceForecast({ onBack }: MarketPriceForecastProps) {
       const statesRes = await fetch(`${API_BASE}/api/available-states`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        signal: AbortSignal.timeout(5000)
+        signal: AbortSignal.timeout(10000)
       });
       
       if (!statesRes.ok) {
@@ -79,39 +79,52 @@ export function MarketPriceForecast({ onBack }: MarketPriceForecastProps) {
       let states = statesData.states || [];
       
       // Load all states (no filtering)
-      console.log(`📍 Fetching data for ${states.length} states...`);
+      console.log(`📍 Fetching data for ${states.length} states sequentially...`);
       
-      // Fetch data for each state with longer timeout for all 36 states
-      const stateDataPromises = states.map(async (state: string) => {
+      // Fetch data for each state SEQUENTIALLY with timeout to avoid overwhelming the server
+      const allData = [];
+      for (let i = 0; i < states.length; i++) {
+        const state = states[i];
         try {
+          console.log(`📊 Fetching state ${i + 1}/${states.length}: ${state}`);
           const response = await fetch(`${API_BASE}/api/dashboard?state=${state}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
-            signal: AbortSignal.timeout(45000)
+            signal: AbortSignal.timeout(60000) // 60 second timeout per state
           });
           
           if (response.ok) {
             const data = await response.json();
-            return {
+            allData.push({
               state,
               prices: data.todayPrices || [],
               topGainers: data.topGainers || [],
               topLosers: data.topLosers || []
-            };
+            });
+          } else {
+            console.warn(`API error for ${state}: ${response.status}`);
+            allData.push({
+              state,
+              prices: [],
+              topGainers: [],
+              topLosers: []
+            });
           }
         } catch (err) {
           console.warn(`Failed to fetch data for ${state}:`, err);
+          allData.push({
+            state,
+            prices: [],
+            topGainers: [],
+            topLosers: []
+          });
         }
         
-        return {
-          state,
-          prices: [],
-          topGainers: [],
-          topLosers: []
-        };
-      });
-      
-      const allData = await Promise.all(stateDataPromises);
+        // Small delay between requests to avoid overwhelming the server
+        if (i < states.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
       setAllStatesData(allData.filter(d => d.prices.length > 0));
       setAllIndiaError("");
     } catch (err) {
