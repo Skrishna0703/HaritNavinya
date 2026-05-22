@@ -6,6 +6,7 @@ import weatherRoutes from './routes/weather.routes.js';
 dotenv.config();
 
 const app = express();
+
 const corsOptions = {
   origin: [
     'http://localhost:3000',
@@ -17,6 +18,7 @@ const corsOptions = {
   ],
   credentials: true
 };
+
 app.use(cors(corsOptions));
 app.use(express.json());
 
@@ -24,6 +26,6 @@ app.use('/api/weather', weatherRoutes);
 
 const PORT = process.env.PORT || 4000;
 
-server.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

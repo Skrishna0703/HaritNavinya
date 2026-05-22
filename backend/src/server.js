@@ -236,7 +236,7 @@ async function startServer() {
     // Initialize Soil API
     await initializeSoilAPI();
 
-    const server = app.listen(PORT, () => {
+    const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`
 ╔════════════════════════════════════════════════════╗
 ║   HaritNavinya Backend - Production Ready          ║
