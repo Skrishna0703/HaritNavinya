@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { ArrowLeft, Bell, Network, Mail } from "lucide-react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 interface FarmerOfficerConnectProps {
   onBack: () => void;
