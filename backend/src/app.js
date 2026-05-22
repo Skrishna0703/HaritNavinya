@@ -14,7 +14,8 @@ const corsOptions = {
     'http://127.0.0.1:3000',
     'http://127.0.0.1:5173',
     'https://haritnavinya.netlify.app',
-    'https://haritnavinya.onrender.com'
+    'https://haritnavinya.onrender.com',
+    'https://haritnavinya-frontend.onrender.com'
   ],
   credentials: true
 };
