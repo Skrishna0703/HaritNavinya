@@ -12,3 +12,35 @@ services:
         value: "20"
       - key: VITE_API_BASE_URL
         value: https://haritnavinya.onrender.com
+  
+  - type: web_service
+    name: haritnavinya-backend
+    plan: free
+    runtime: node
+    buildCommand: cd backend && npm ci --legacy-peer-deps
+    startCommand: cd backend && npm start
+    autoDeployOnPush: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "20"
+      - key: PORT
+        value: "5000"
+      - key: MONGODB_URI
+        fromDatabase:
+          name: haritnavinya-db
+          property: connectionString
+      - key: CORS_ORIGIN
+        value: https://haritnavinya-frontend.onrender.com
+      - key: OPENWEATHER_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: AGMARKNET_API_KEY
+        sync: false
+
+databases:
+  - name: haritnavinya-db
+    plan: free
+    version: "4.4"

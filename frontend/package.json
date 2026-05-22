@@ -1,5 +1,5 @@
 {
-      "name": "Farmer-Friendly Landing Page",
+      "name": "haritnavinya",
       "version": "0.1.0",
       "private": true,
       "dependencies": {
@@ -31,14 +31,14 @@
             "@radix-ui/react-toggle-group": "^1.1.2",
             "@radix-ui/react-tooltip": "^1.1.8",
             "class-variance-authority": "^0.7.1",
-            "clsx": "*",
+            "clsx": "^2.1.1",
             "cmdk": "^1.1.1",
             "embla-carousel-react": "^8.6.0",
             "input-otp": "^1.4.2",
             "leaflet": "^1.9.4",
             "lottie-react": "^2.4.1",
             "lucide-react": "^0.487.0",
-            "motion": "*",
+            "motion": "^10.16.16",
             "next-themes": "^0.4.6",
             "papaparse": "^5.5.3",
             "react": "^18.3.1",
@@ -50,11 +50,13 @@
             "recharts": "^2.15.2",
             "socket.io-client": "^4.8.1",
             "sonner": "^2.0.3",
-            "tailwind-merge": "*",
+            "tailwind-merge": "^2.4.0",
             "vaul": "^1.1.2"
       },
       "devDependencies": {
             "@types/node": "^20.10.0",
+            "@types/react": "^18.3.0",
+            "@types/react-dom": "^18.3.0",
             "@vitejs/plugin-react-swc": "^3.10.2",
             "vite": "^6.4.2"
       },
