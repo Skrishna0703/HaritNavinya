@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { ArrowLeft, Bell, Zap, Mail, Phone, ExternalLink } from "lucide-react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 interface SmartFarmingGuidanceProps {
   onBack: () => void;

@@ -16,7 +16,7 @@ import { SoilTestingCenters } from "./components/SoilTestingCenters";
 import { SmartFarmingGuidance } from "./components/SmartFarmingGuidance";
 import { FarmerOfficerConnect } from "./components/FarmerOfficerConnect";
 import { PostHarvestSupport } from "./components/PostHarvestSupport";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import LoadingScreen from "./components/LoadingScreen";
 import { useLoading } from "./hooks/useLoading";
 // Feature card images - import as URLs
