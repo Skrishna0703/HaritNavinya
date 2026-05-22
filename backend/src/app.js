@@ -22,7 +22,8 @@ app.use(express.json());
 
 app.use('/api/weather', weatherRoutes);
 
-const PORT = 4000; // Weather service port
-app.listen(PORT, () => {
-  console.log(`Weather backend listening on port ${PORT}`);
+const PORT = process.env.PORT || 4000;
+
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });

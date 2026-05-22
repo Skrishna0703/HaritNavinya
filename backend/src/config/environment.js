@@ -7,7 +7,6 @@ const REQUIRED_VARS = {
   production: [
     'NODE_ENV',
     'PORT',
-    'MONGODB_URI',
     'CORS_ORIGIN'
   ],
   development: [
@@ -68,7 +67,6 @@ export function validateEnvironment() {
   return {
     nodeEnv,
     port: process.env.PORT || 5000,
-    mongodbUri: process.env.MONGODB_URI,
     corsOrigin: process.env.CORS_ORIGIN,
     geminiApiKey: process.env.GEMINI_API_KEY ? '***SET***' : 'NOT_SET',
     openweatherApiKey: process.env.OPENWEATHER_API_KEY ? '***SET***' : 'NOT_SET',
@@ -85,14 +83,12 @@ export function getEnvConfig() {
     isProduction: process.env.NODE_ENV === 'production',
     port: parseInt(process.env.PORT || '5000'),
     host: process.env.HOST || 'localhost',
-    mongodbUri: process.env.MONGODB_URI,
     corsOrigin: (process.env.CORS_ORIGIN || '').split(',').map(o => o.trim()),
     geminiApiKey: process.env.GEMINI_API_KEY,
     openweatherApiKey: process.env.OPENWEATHER_API_KEY,
     agmarknetApiKey: process.env.AGMARKNET_API_KEY,
     logLevel: process.env.LOG_LEVEL || 'info',
     requestTimeout: parseInt(process.env.REQUEST_TIMEOUT || '30000'),
-    dbConnectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '10'),
     apiRateLimit: parseInt(process.env.API_RATE_LIMIT || '100')
   };
 }

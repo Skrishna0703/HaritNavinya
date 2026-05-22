@@ -67,28 +67,15 @@ export function createSoilApp() {
 /**
  * Initialize database and load CSV data
  */
-export async function initializeSoilAPI(mongodbUri) {
+export async function initializeSoilAPI() {
   try {
-    // Connect to MongoDB
-    console.log('🔗 Connecting to MongoDB...');
-    await mongoose.connect(mongodbUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('✅ MongoDB connected');
-
     // Load CSV data into cache
     console.log('📂 Loading CSV data...');
-    const csvPath = path.join(__dirname, '..', '..', 'Nutrient.csv');
+    const csvPath = path.join(__dirname, '..', 'Nutrient.csv');
     await loadSoilDataFromCSV(csvPath);
-    console.log('✅ CSV data loaded into cache');
+    console.log('✅ CSV data loaded into memory cache');
 
-    // Initialize soil database
-    console.log('🔄 Initializing soil database...');
-    const result = await initializeSoilData();
-    console.log(`✅ Database initialized: ${result.recordCount} records`);
-
-    return { success: true, recordCount: result.recordCount };
+    return { success: true, storage: 'CSV' };
   } catch (error) {
     console.error('❌ Error initializing Soil API:', error.message);
     throw error;

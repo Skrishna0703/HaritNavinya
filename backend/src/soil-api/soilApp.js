@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import { connectMongoDB, createIndexes } from './config/database.js';
+import { loadSoilDataFromCSV } from '../services/csvDataParser.js';
 import soilRoutes from './routes/soilRoutes.js';
 import {
   setCORSHeaders,
@@ -15,7 +15,7 @@ dotenv.config();
 
 /**
  * Create and configure Express app for Soil Fertility Map API
- * Production-ready setup with middleware, routes, and error handling
+ * CSV-based storage (no database required)
  */
 export const createSoilApp = () => {
   const app = express();
@@ -52,7 +52,7 @@ export const createSoilApp = () => {
   app.get('/api/soil/health', (req, res) => {
     res.status(200).json({
       success: true,
-      message: 'Soil API is running',
+      message: 'Soil API is running (CSV-based)',
       timestamp: new Date().toISOString()
     });
   });
@@ -65,9 +65,10 @@ export const createSoilApp = () => {
     res.status(200).json({
       success: true,
       name: 'Soil Fertility Map API - v1.0',
-      description: 'Production-ready backend for Soil Health Card Cycle-II integration',
+      description: 'Production-ready backend for Soil Health Card Cycle-II (CSV-based)',
       version: '1.0.0',
-      cycle: 'Cycle-II'
+      cycle: 'Cycle-II',
+      storage: 'CSV'
     });
   });
 
@@ -101,17 +102,17 @@ export const createSoilApp = () => {
 };
 
 /**
- * Initialize soil API with database connection
+ * Initialize soil API - load CSV data into memory
  */
 export const initializeSoilAPI = async (app) => {
   try {
-    console.log('\n🌱 Initializing Soil Fertility Map API...\n');
+    console.log('\n🌱 Initializing Soil Fertility Map API (CSV-based)...\n');
 
-    // Connect to MongoDB
-    await connectMongoDB();
-
-    // Create indexes
-    await createIndexes();
+    // Load CSV data into cache
+    console.log('📂 Loading soil data from CSV...');
+    const csvPath = new URL('../../../Nutrient.csv', import.meta.url).pathname;
+    await loadSoilDataFromCSV(csvPath);
+    console.log('✅ CSV data loaded into memory cache');
 
     // Start listening
     const PORT = process.env.SOIL_API_PORT || process.env.PORT || 5000;
