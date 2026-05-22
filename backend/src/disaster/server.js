@@ -19,7 +19,7 @@ console.log('🔧 Loading .env from:', envPath);
 dotenv.config({ path: envPath });
 
 const PORT = process.env.DISASTER_PORT || 4000;
-const HOST = process.env.HOST || 'localhost';
+const HOST = process.env.HOST || '0.0.0.0';
 
 // Create Express app
 const app = createApp();
