@@ -7,7 +7,7 @@
 export const getApiBaseUrl = (): string => {
   // In production, always use the backend service URL
   if (import.meta.env.PROD) {
-    return 'https://haritnavinya-backend.onrender.com';
+    return 'https://haritnavinya.onrender.com';
   }
   
   // In development, use environment variable or localhost fallback
@@ -17,7 +17,7 @@ export const getApiBaseUrl = (): string => {
 // Get weather API URL
 export const getWeatherApiUrl = (): string => {
   if (import.meta.env.PROD) {
-    return 'https://haritnavinya-backend.onrender.com';
+    return 'https://haritnavinya.onrender.com';
   }
   return import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 };
