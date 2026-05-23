@@ -17,6 +17,7 @@ import {
   Calendar
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
+import { WeatherMap } from './WeatherMap';
 
 interface WeatherForecastProps {
   onBack: () => void;
@@ -466,6 +467,18 @@ export function WeatherForecast({ onBack }: WeatherForecastProps) {
             </Card>
           </div>
         </div>
+
+        {/* Interactive Weather Map */}
+        {latLon && (
+          <div className="mb-8">
+            <WeatherMap 
+              lat={latLon.lat} 
+              lon={latLon.lon}
+              apiKey={import.meta.env.VITE_OPENWEATHER_API_KEY}
+              mapType="temperature"
+            />
+          </div>
+        )}
 
         {/* Rainfall Chart */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
