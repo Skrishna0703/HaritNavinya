@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { LatLngExpression } from 'leaflet';
 import L from 'leaflet';
+import { motion } from 'framer-motion';
 import { 
   Cloud, 
   CloudRain, 
@@ -138,12 +139,17 @@ export function WeatherVisualizationMap({ onBack }: WeatherMapProps) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 max-w-7xl mx-auto h-[calc(100vh-80px)]">
         
         {/* Left Sidebar - Parameters */}
-        <div className="lg:col-span-2 space-y-2 overflow-y-auto">
-          {parameters.map((param) => {
+        <motion.div 
+          className="lg:col-span-2 space-y-2 overflow-y-auto"
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {parameters.map((param, index) => {
             const IconComponent = param.icon;
             const isSelected = selectedParameter === param.id;
             return (
-              <button
+              <motion.button
                 key={param.id}
                 onClick={() => setSelectedParameter(param.id as any)}
                 className={`w-full px-4 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${
@@ -151,33 +157,70 @@ export function WeatherVisualizationMap({ onBack }: WeatherMapProps) {
                     ? 'bg-white text-blue-900 shadow-lg'
                     : 'bg-white/10 text-white hover:bg-white/20'
                 }`}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                whileHover={{ scale: 1.05, translateX: 4 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <IconComponent className="w-4 h-4" />
+                <motion.div
+                  animate={isSelected ? { rotate: 360 } : { rotate: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <IconComponent className="w-4 h-4" />
+                </motion.div>
                 <span className="text-sm">{param.label}</span>
-              </button>
+              </motion.button>
             );
           })}
 
           {/* Wind Particles Toggle */}
-          <div className="bg-white/10 rounded-lg p-3 border border-white/20">
+          <motion.div 
+            className="bg-white/10 rounded-lg p-3 border border-white/20"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.35 }}
+            whileHover={{ backgroundColor: 'rgba(255,255,255,0.15)' }}
+          >
             <div className="flex items-center justify-between text-white">
               <span className="text-sm font-medium">Wind particles</span>
-              <div className="w-8 h-5 bg-white/20 rounded-full cursor-pointer relative">
-                <div className="absolute right-0 top-0 w-5 h-5 bg-white rounded-full shadow-lg"></div>
-              </div>
+              <motion.div 
+                className="w-8 h-5 bg-white/20 rounded-full cursor-pointer relative"
+                whileHover={{ scale: 1.1 }}
+              >
+                <motion.div 
+                  className="absolute right-0 top-0 w-5 h-5 bg-white rounded-full shadow-lg"
+                  animate={{ x: [0, 2, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                ></motion.div>
+              </motion.div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Center - Map Visualization */}
-        <div className="lg:col-span-8 rounded-xl overflow-hidden shadow-2xl border border-white/10">
+        <motion.div 
+          className="lg:col-span-8 rounded-xl overflow-hidden shadow-2xl border border-white/10"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           {loading ? (
-            <div className="w-full h-full flex items-center justify-center bg-blue-800">
+            <motion.div 
+              className="w-full h-full flex items-center justify-center bg-blue-800"
+              animate={{ opacity: [0.8, 1, 0.8] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
               <div className="text-white text-center">
-                <Cloud className="w-12 h-12 mx-auto mb-4 animate-bounce" />
+                <motion.div
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  <Cloud className="w-12 h-12 mx-auto mb-4" />
+                </motion.div>
                 <p className="font-medium">Loading weather data...</p>
               </div>
-            </div>
+            </motion.div>
           ) : latLon ? (
             <MapContainer center={mapCenter} zoom={5} className="w-full h-full">
               <TileLayer
@@ -185,20 +228,43 @@ export function WeatherVisualizationMap({ onBack }: WeatherMapProps) {
                 attribution='&copy; OpenStreetMap contributors'
               />
               {latLon && (
-                <Marker position={[latLon.lat, latLon.lon]}>
-                  <Popup>
-                    <div className="font-medium">Your Location</div>
-                    <div className="text-sm">{latLon.lat.toFixed(4)}°, {latLon.lon.toFixed(4)}°</div>
-                  </Popup>
-                </Marker>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.4, type: 'spring', stiffness: 100 }}
+                >
+                  <Marker position={[latLon.lat, latLon.lon]}>
+                    <Popup>
+                      <motion.div 
+                        className="font-medium"
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        Your Location
+                      </motion.div>
+                      <div className="text-sm">{latLon.lat.toFixed(4)}°, {latLon.lon.toFixed(4)}°</div>
+                    </Popup>
+                  </Marker>
+                </motion.div>
               )}
             </MapContainer>
           ) : null}
 
           {/* Weather Legend */}
-          <div className="absolute bottom-4 left-4 bg-black/40 backdrop-blur text-white px-4 py-2 rounded-lg text-xs">
+          <motion.div 
+            className="absolute bottom-4 left-4 bg-black/40 backdrop-blur text-white px-4 py-2 rounded-lg text-xs"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: 0.5 }}
+          >
             <div className="text-center">
-              <span className="text-orange-300">━━━━━ 20°C</span>
+              <motion.span 
+                className="text-orange-300"
+                animate={{ opacity: [0.7, 1, 0.7] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                ━━━━━ 20°C
+              </motion.span>
               <span className="mx-2">━━━━━</span>
               <span className="text-red-400">35°C ━━━━━</span>
             </div>
@@ -209,39 +275,183 @@ export function WeatherVisualizationMap({ onBack }: WeatherMapProps) {
         </div>
 
         {/* Right Sidebar - Weather Details & Rainfall */}
-        <div className="lg:col-span-2 space-y-4 overflow-y-auto">
+        <motion.div 
+          className="lg:col-span-2 space-y-4 overflow-y-auto"
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
           
           {/* Current Weather Card */}
-          <Card className="border-0 bg-white/10 backdrop-blur text-white rounded-xl">
-            <CardContent className="p-4">
-              <div className="text-center mb-4">
-                <h3 className="text-sm font-medium text-white/70 mb-2">राइमुर</h3>
-                <p className="text-xs text-white/60">19.62, 74.66</p>
-              </div>
-              
-              <div className="text-center py-4 border-b border-white/10">
-                <div className="text-5xl font-bold mb-2">{currentWeather?.temperature ?? 28}°C</div>
-                <div className="flex items-center justify-center gap-2">
-                  <Cloud className="w-4 h-4" />
-                  <span className="text-sm">{currentWeather?.condition || 'Partly Cloudy'}</span>
-                </div>
-              </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+          >
+            <Card className="border-0 bg-white/10 backdrop-blur text-white rounded-xl">
+              <CardContent className="p-4">
+                <motion.div 
+                  className="text-center mb-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.4 }}
+                >
+                  <h3 className="text-sm font-medium text-white/70 mb-2">राइमुर</h3>
+                  <p className="text-xs text-white/60">19.62, 74.66</p>
+                </motion.div>
+                
+                <motion.div 
+                  className="text-center py-4 border-b border-white/10"
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.4, delay: 0.35 }}
+                >
+                  <motion.div 
+                    className="text-5xl font-bold mb-2"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    {currentWeather?.temperature ?? 28}°C
+                  </motion.div>
+                  <motion.div 
+                    className="flex items-center justify-center gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.4, delay: 0.45 }}
+                  >
+                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity }}>
+                      <Cloud className="w-4 h-4" />
+                    </motion.div>
+                    <span className="text-sm">{currentWeather?.condition || 'Partly Cloudy'}</span>
+                  </motion.div>
+                </motion.div>
 
-              <div className="grid grid-cols-2 gap-3 mt-4 text-xs">
-                <div>
-                  <div className="text-white/60 mb-1">Feels like</div>
-                  <div className="font-bold text-lg">{currentWeather?.feelsLike ?? 30}°C</div>
+                <motion.div 
+                  className="grid grid-cols-2 gap-3 mt-4 text-xs"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.5 }}
+                >
+                  {[
+                    { label: 'Feels like', value: currentWeather?.feelsLike ?? 30, unit: '°C' },
+                    { label: 'Wind', value: currentWeather?.windSpeed ?? 12, unit: ' m/s' },
+                    { label: 'Direction', value: '298° WNW ⤴', unit: '' },
+                    { label: 'Humidity', value: currentWeather?.humidity ?? 65, unit: '%' }
+                  ].map((item, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.5 + idx * 0.05 }}
+                    >
+                      <div className="text-white/60 mb-1">{item.label}</div>
+                      <div className="font-bold text-lg">{item.value}{item.unit}</div>
+                    </motion.div>
+                  ))}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.7 }}
+                    className="col-span-2"
+                  >
+                    <div className="text-white/60 mb-1">Clouds</div>
+                    <div className="font-bold">{36}%</div>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.75 }}
+                    className="col-span-2"
+                  >
+                    <div className="text-white/60 mb-1">Pressure</div>
+                    <div className="font-bold">{currentWeather?.pressure ?? 1011} hPa</div>
+                  </motion.div>
+                </motion.div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Rainfall Forecast */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.4 }}
+          >
+            <Card className="border-0 bg-white/10 backdrop-blur text-white rounded-xl">
+              <CardContent className="p-4">
+                <h3 className="font-bold mb-4 text-sm">Rainfall Forecast</h3>
+                
+                <div className="space-y-2">
+                  {rainfallForecast.map((day, idx) => (
+                    <motion.div 
+                      key={idx} 
+                      className="bg-white/5 rounded-lg p-2"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: 0.45 + idx * 0.05 }}
+                      whileHover={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium">{day.date}</span>
+                        <span className="text-xs text-blue-300">{day.amount}</span>
+                      </div>
+                      <div className="w-full bg-white/10 rounded-full h-2">
+                        <motion.div
+                          className="bg-gradient-to-r from-blue-400 to-cyan-400 h-2 rounded-full"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${day.probability}%` }}
+                          transition={{ duration: 0.6, delay: 0.5 + idx * 0.08 }}
+                        ></motion.div>
+                      </div>
+                      <div className="text-right text-xs text-white/60 mt-1">{day.probability}%</div>
+                    </motion.div>
+                  ))}
                 </div>
-                <div>
-                  <div className="text-white/60 mb-1">Wind</div>
-                  <div className="font-bold text-lg">{currentWeather?.windSpeed ?? 12} m/s</div>
-                </div>
-                <div>
-                  <div className="text-white/60 mb-1">Direction</div>
-                  <div className="font-bold">298° WNW ⤴</div>
-                </div>
-                <div>
-                  <div className="text-white/60 mb-1">Humidity</div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Date/Time Navigation */}
+          <motion.div 
+            className="bg-white/10 backdrop-blur rounded-xl p-3 flex items-center justify-between"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.5 }}
+            whileHover={{ backgroundColor: 'rgba(255,255,255,0.15)' }}
+          >
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+            </motion.div>
+            <div className="text-center text-white text-xs">
+              <div className="font-medium">2026-05-23</div>
+              <div className="text-white/60">07:00</div>
+            </div>
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </motion.div>
+          </motion.div>
+
+          {/* Attribution */}
+          <motion.div 
+            className="text-xs text-white/50 text-center p-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <div>OpenWeatherMap ©</div>
+            <div>OpenStreetMap Contributors</div>
+          </motion.div>
+        </motion.div>
                   <div className="font-bold text-lg">{currentWeather?.humidity ?? 65}%</div>
                 </div>
                 <div className="col-span-2">
