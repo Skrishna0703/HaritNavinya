@@ -12,6 +12,8 @@ import { FertilizerRecommendation } from "./components/FertilizerRecommendation"
 import { DisasterAlerts } from "./components/DisasterAlertsClean";
 import { SoilDataInsights } from "./components/SoilDataInsights";
 import { WeatherForecast } from "./components/WeatherForecast";
+import { WeatherVisualizationMap } from "./components/WeatherVisualizationMap";
+import { RainfallForecastVisualization } from "./components/RainfallForecastVisualization";
 import { SoilTestingCenters } from "./components/SoilTestingCenters";
 import { SmartFarmingGuidance } from "./components/SmartFarmingGuidance";
 import { FarmerOfficerConnect } from "./components/FarmerOfficerConnect";
@@ -55,7 +57,7 @@ import {
   Bell
 } from "lucide-react";
 
-type PageType = 'home' | 'plant-disease' | 'market-price' | 'ai-chatbot' | 'crop-recommendation' | 'fertilizer-recommendation' | 'disaster-alerts' | 'soil-data-insights' | 'weather-forecast' | 'soil-testing-centers' | 'smart-farming-guidance' | 'farmer-officer-connect' | 'post-harvest-support';
+type PageType = 'home' | 'plant-disease' | 'market-price' | 'ai-chatbot' | 'crop-recommendation' | 'fertilizer-recommendation' | 'disaster-alerts' | 'soil-data-insights' | 'weather-forecast' | 'weather-map' | 'rainfall-forecast' | 'soil-testing-centers' | 'smart-farming-guidance' | 'farmer-officer-connect' | 'post-harvest-support';
 
 // Custom loading messages and GIFs for each page
 const loadingConfig: Record<string, { message: string; gifUrl?: string }> = {
@@ -67,6 +69,8 @@ const loadingConfig: Record<string, { message: string; gifUrl?: string }> = {
   'ai-chatbot': { message: 'Starting AI Assistant...', gifUrl: '/loading/chatbot.gif' },
   'soil-data-insights': { message: 'Analyzing Soil Data...', gifUrl: '/loading/soil.gif' },
   'weather-forecast': { message: 'Fetching Weather Data...', gifUrl: '/loading/weather.gif' },
+  'weather-map': { message: 'Loading Weather Map...', gifUrl: '/loading/weather.gif' },
+  'rainfall-forecast': { message: 'Generating Rainfall Forecast...', gifUrl: '/loading/weather.gif' },
   'soil-testing-centers': { message: 'Finding Testing Centers...', gifUrl: '/loading/centers.gif' },
   'smart-farming-guidance': { message: 'Loading Smart Farming Guide...', gifUrl: '/loading/farming.gif' },
   'farmer-officer-connect': { message: 'Connecting Farmers...', gifUrl: '/loading/connect.gif' },
@@ -83,7 +87,7 @@ function AppContent() {
     return (savedPage && 
       ['home', 'plant-disease', 'market-price', 'ai-chatbot', 'crop-recommendation', 
        'fertilizer-recommendation', 'disaster-alerts', 'soil-data-insights', 
-       'weather-forecast', 'soil-testing-centers', 'smart-farming-guidance', 
+       'weather-forecast', 'weather-map', 'rainfall-forecast', 'soil-testing-centers', 'smart-farming-guidance', 
        'farmer-officer-connect', 'post-harvest-support'].includes(savedPage)) 
       ? savedPage 
       : 'home';
@@ -435,6 +439,24 @@ function AppContent() {
       <>
         <LoadingScreen isVisible={isLoading} message={loadingMessage} />
         <WeatherForecast onBack={() => setCurrentPage('home')} />
+      </>
+    );
+  }
+
+  if (currentPage === 'weather-map') {
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <WeatherVisualizationMap onBack={() => setCurrentPage('home')} />
+      </>
+    );
+  }
+
+  if (currentPage === 'rainfall-forecast') {
+    return (
+      <>
+        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
+        <RainfallForecastVisualization onBack={() => setCurrentPage('home')} />
       </>
     );
   }
