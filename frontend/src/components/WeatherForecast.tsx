@@ -61,6 +61,48 @@ export function WeatherForecast({ onBack }: WeatherForecastProps) {
 
   const API_BASE = import.meta.env.PROD ? 'https://haritnavinya.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000');
 
+  // Fallback weather data with current dates
+  const fallbackWeather = {
+    currentWeather: {
+      temperature: 28,
+      condition: 'Partly Cloudy',
+      humidity: 65,
+      windSpeed: 12,
+      visibility: 10,
+      uvIndex: 6,
+      pressure: 1013,
+      feelsLike: 30,
+      sunrise: '06:15 AM',
+      sunset: '06:45 PM',
+      location: 'Current Location'
+    },
+    weeklyForecast: generateFutureDates(7).map((date, idx) => ({
+      date,
+      temp: 28 - idx,
+      minTemp: 22 - idx,
+      maxTemp: 32 - idx,
+      condition: ['Sunny', 'Partly Cloudy', 'Cloudy', 'Light Rain', 'Moderate Rain'][idx % 5],
+      rainProbability: [10, 20, 30, 60, 50][idx % 5],
+      windSpeed: 8 + idx,
+      humidity: 60 + idx * 2
+    })),
+    hourlyForecast: [
+      { time: '12:00 PM', temp: 28, rainProbability: 10, weather: 'Sunny', icon: '01d' },
+      { time: '1:00 PM', temp: 29, rainProbability: 15, weather: 'Sunny', icon: '01d' },
+      { time: '2:00 PM', temp: 30, rainProbability: 20, weather: 'Partly Cloudy', icon: '02d' },
+      { time: '3:00 PM', temp: 30, rainProbability: 25, weather: 'Partly Cloudy', icon: '02d' },
+      { time: '4:00 PM', temp: 29, rainProbability: 30, weather: 'Cloudy', icon: '04d' },
+      { time: '5:00 PM', temp: 27, rainProbability: 35, weather: 'Cloudy', icon: '04d' },
+      { time: '6:00 PM', temp: 25, rainProbability: 25, weather: 'Partly Cloudy', icon: '02d' },
+      { time: '7:00 PM', temp: 23, rainProbability: 15, weather: 'Clear', icon: '01n' }
+    ],
+    rainfallData: generateFutureDates(15).map((date, idx) => ({
+      date,
+      rainfall: Math.random() * 50,
+      probability: Math.random() * 100
+    }))
+  };
+
   function generateDefaultFarmingAdvice() {
     return [
       {

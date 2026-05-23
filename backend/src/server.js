@@ -18,6 +18,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import mandiRoutes from './routes/mandiRoutes.js';
 import soilRoutes from './routes/soilRoutes.js';
+import weatherRoutes from './routes/weatherRoutes.js';
 import { loadSoilDataFromCSV } from './services/csvDataParser.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -88,28 +89,10 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Weather API test endpoint
-app.get('/api/weather', async (req, res) => {
-  try {
-    const { lat, lon } = req.query;
-    if (!lat || !lon) {
-      return res.status(400).json({ error: 'lat and lon query parameters are required' });
-    }
-    
-    // Import and call the weather service directly
-    const { fetchWeatherByCoords } = await import('./services/weather.service.js');
-    const data = await fetchWeatherByCoords(lat, lon);
-    return res.json(data);
-  } catch (err) {
-    console.error('Weather API error:', err.message);
-    return res.status(500).json({ 
-      error: 'Failed to fetch weather data', 
-      message: err.message 
-    });
-  }
-});
-
 // Mount specific routes BEFORE generic /api routes
+// Weather API routes
+app.use('/api/weather', weatherRoutes);
+
 // Soil API routes
 app.use('/api/soil', soilRoutes);
 
@@ -173,12 +156,14 @@ app.use((req, res) => {
     error: 'Not Found',
     message: `Endpoint ${req.method} ${req.path} does not exist`,
     availableEndpoints: {
+      weather: '/api/weather?lat=<latitude>&lon=<longitude>',
       dashboard: '/api/dashboard',
       trends: '/api/trends',
       states: '/api/available-states',
       commodities: '/api/available-commodities',
       marketData: '/api/market-data',
-      health: '/api/health'
+      health: '/api/health',
+      soil: '/api/soil/health'
     }
   });
 });
@@ -249,8 +234,11 @@ async function startServer() {
 ╠════════════════════════════════════════════════════╣
 ║   Port    : ${PORT.toString().padEnd(45)}║
 ║   Env     : ${(process.env.NODE_ENV || 'development').padEnd(45)}║
-║   Storage : CSV-based                              ║
+║   Storage : CSV-based + OpenWeather API            ║
 ╠════════════════════════════════════════════════════╣
+║   🌤️ Weather API Endpoints:                        ║
+║   • GET  /api/weather?lat=<lat>&lon=<lon>          ║
+║                                                    ║
 ║   🌱 Soil API Endpoints:                           ║
 ║   • GET  /api/soil/health                          ║
 ║   • GET  /api/soil/soil-data?state=                ║
