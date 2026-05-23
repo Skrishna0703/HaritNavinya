@@ -132,8 +132,8 @@ function AppContent() {
             async (position) => {
               const { latitude, longitude } = position.coords;
               try {
-                // Fetch weather from our backend API (port 4000)
-                const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+                // Fetch weather from our backend API
+                const API_BASE = import.meta.env.PROD ? 'https://haritnavinya-backend.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000');
                 const response = await fetch(`${API_BASE}/api/weather?lat=${latitude}&lon=${longitude}`);
                 if (response.ok) {
                   const data = await response.json();
@@ -198,7 +198,7 @@ function AppContent() {
       try {
         setMarketLoading(true);
         // Fetch from Maharashtra (default state)
-        const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+        const API_BASE = import.meta.env.PROD ? 'https://haritnavinya-backend.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
         const response = await fetch(`${API_BASE}/api/dashboard?state=Maharashtra`);
         if (response.ok) {
           const data = await response.json();

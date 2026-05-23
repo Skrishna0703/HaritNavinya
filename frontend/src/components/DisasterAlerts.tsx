@@ -62,7 +62,7 @@ export default function DisasterAlerts({ onBack }) {
   }, []);
 
   useEffect(() => {
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+    const API_BASE = import.meta.env.PROD ? 'https://haritnavinya-backend.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000');
     fetch(`${API_BASE}/api/disaster/alerts`)
       .then((r) => r.json())
       .then((data) => {
@@ -92,7 +92,7 @@ export default function DisasterAlerts({ onBack }) {
   }, []);
 
   useEffect(() => {
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+    const API_BASE = import.meta.env.PROD ? 'https://haritnavinya-backend.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000');
     const socket = io(API_BASE, { transports: ["websocket", "polling"] });
     socket.on("connect", () => { setConnected(true); console.log(" Connected"); });
     socket.on("alert:new", (newAlert) => {
