@@ -32,18 +32,22 @@ const PORT = process.env.CHATBOT_PORT || 5001;
 const corsOptions = {
   origin: [
     'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
     'http://localhost:5173',
-    'http://localhost:5000',
     'http://127.0.0.1:3000',
     'http://127.0.0.1:5173',
     'https://haritnavinya.netlify.app',
-    'https://haritnavinya.onrender.com'
+    'https://haritnavinya.onrender.com',
+    'https://haritnavinya-frontend.onrender.com'
   ],
   credentials: true,
-  optionsSuccessStatus: 200
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Explicitly handle preflight requests
 
 // Body parser middleware
 app.use(express.json({ limit: '10mb' }));

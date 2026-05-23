@@ -35,61 +35,26 @@ const PORT = process.env.PORT || 5000;
  * ============================================
  */
 
-// CORS configuration
-const allowedOriginsList = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:5173,https://haritnavinya.onrender.com,https://haritnavinya-backend.onrender.com,https://haritnavinya-frontend.onrender.com,https://haritnavinya.netlify.app')
-  .split(',')
-  .map(origin => origin.trim())
-  .filter(origin => origin.length > 0);
-
+// Simplified CORS configuration
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) {
-      return callback(null, true);
-    }
-    
-    // Allow any localhost origin in development
-    if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
-      return callback(null, true);
-    }
-    
-    // Check against allowed origins list (with trim for safety)
-    if (allowedOriginsList.includes(origin)) {
-      return callback(null, true);
-    }
-    
-    // Development mode: allow all origins
-    if (process.env.NODE_ENV === 'development') {
-      return callback(null, true);
-    }
-    
-    // Not allowed
-    console.warn(`CORS: Rejected request from origin: ${origin}`);
-    console.warn(`Allowed origins: ${allowedOriginsList.join(', ')}`);
-    return callback(new Error('Not allowed by CORS'));
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:5173',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:5173',
+    'https://haritnavinya.netlify.app',
+    'https://haritnavinya.onrender.com',
+    'https://haritnavinya-frontend.onrender.com'
+  ],
   credentials: true,
-  maxAge: 86400 // 24 hours
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
 app.use(cors(corsOptions));
-
-// Handle preflight requests explicitly
-app.options('*', cors(corsOptions));
-
-// Additional CORS headers for debugging/compatibility
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  
-  // Log CORS details for debugging
-  if (process.env.LOG_LEVEL === 'debug') {
-    console.log(`[CORS] Origin: ${origin}, Method: ${req.method}, Path: ${req.path}`);
-  }
-  
-  next();
-});
+app.options('*', cors(corsOptions)); // Explicitly handle preflight requests
 
 // Body parser middleware
 app.use(express.json());
