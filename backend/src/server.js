@@ -18,7 +18,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import mandiRoutes from './routes/mandiRoutes.js';
 import soilRoutes from './routes/soilRoutes.js';
-import weatherRoutes from './routes/weather.routes.js';
 import { loadSoilDataFromCSV } from './services/csvDataParser.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -89,13 +88,32 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Weather API routes
-app.use('/api/weather', weatherRoutes);
+// Weather API test endpoint
+app.get('/api/weather', async (req, res) => {
+  try {
+    const { lat, lon } = req.query;
+    if (!lat || !lon) {
+      return res.status(400).json({ error: 'lat and lon query parameters are required' });
+    }
+    
+    // Import and call the weather service directly
+    const { fetchWeatherByCoords } = await import('./services/weather.service.js');
+    const data = await fetchWeatherByCoords(lat, lon);
+    return res.json(data);
+  } catch (err) {
+    console.error('Weather API error:', err.message);
+    return res.status(500).json({ 
+      error: 'Failed to fetch weather data', 
+      message: err.message 
+    });
+  }
+});
 
+// Mount specific routes BEFORE generic /api routes
 // Soil API routes
 app.use('/api/soil', soilRoutes);
 
-// Mandi/Market API routes
+// Mandi/Market API routes (most generic, should be last)
 app.use('/api', mandiRoutes);
 
 /**
