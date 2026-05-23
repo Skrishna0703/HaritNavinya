@@ -18,6 +18,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import mandiRoutes from './routes/mandiRoutes.js';
 import soilRoutes from './routes/soilRoutes.js';
+import weatherRoutes from './routes/weather.routes.js';
 import { loadSoilDataFromCSV } from './services/csvDataParser.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -81,11 +82,15 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     version: '1.0.0',
     modules: [
+      { name: 'Weather API', endpoint: '/api/weather', status: '✅' },
       { name: 'Soil Fertility Map', endpoint: '/api/soil', status: '✅' },
-      { name: 'Market Data', endpoint: '/api/mandi', status: '✅' }
+      { name: 'Market Data', endpoint: '/api/dashboard', status: '✅' }
     ]
   });
 });
+
+// Weather API routes
+app.use('/api/weather', weatherRoutes);
 
 // Soil API routes
 app.use('/api/soil', soilRoutes);
