@@ -117,54 +117,52 @@ export const DisasterAlerts = ({ onBack }: { onBack: () => void }) => {
         setError(null);
         const API_BASE = import.meta.env.PROD ? 'https://haritnavinya.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
         
-        // Fetch from selected state or all major states for map view
-        const statesToFetch = selectedState === 'all' ? 
-          ['maharashtra', 'karnataka', 'tamil nadu', 'uttar pradesh', 'delhi', 'west bengal', 'assam', 'kerala', 'rajasthan', 'goa', 'gujarat', 'odisha']
-          : [selectedState];
+        // Get coordinates for selected state or use India center
+        let lat = 22.9734;
+        let lon = 78.6569;
         
-        let allAlerts: any[] = [];
-        
-        for (const state of statesToFetch) {
-          try {
-            const response = await fetch(`${API_BASE}/api/disaster/alerts?state=${state}`);
-            const data = await response.json();
-            const alertsArray = data.alerts || [];
-            allAlerts = [...allAlerts, ...alertsArray.map((a: any) => ({ ...a, state: a.state || state }))];
-          } catch (err) {
-            console.error(`Failed to fetch alerts for ${state}:`, err);
+        if (selectedState !== 'all') {
+          const coords = (STATE_COORDINATES as any)[selectedState];
+          if (coords) {
+            [lat, lon] = coords;
           }
         }
         
+        // Fetch weather alerts from Open-Meteo API
+        const response = await fetch(`${API_BASE}/api/weather?lat=${lat}&lon=${lon}`);
+        const data = await response.json();
+        
         if (!mounted) return;
         
-        const normalized = allAlerts.map((a: any) => {
-          const state = a.state || selectedState || "India";
-          const coords = a.coordinates || (STATE_COORDINATES as any)[state.replace(/^.*?(?=[A-Z])/g, '').trim()] || undefined;
+        const weatherAlerts = data.alerts || [];
+        const normalized = weatherAlerts.map((a: any, idx: number) => {
+          const state = selectedState === 'all' ? "India" : selectedState;
+          const coords = (STATE_COORDINATES as any)[state] || [lat, lon];
           return {
-            id: a.guid || a.id || String(Math.random()),
+            id: `weather-${idx}-${Date.now()}`,
             state,
-            title: a.title || a.type || "Alert",
-            severity: a.severity || "Medium",
-            description: a.description || a.contentSnippet || "",
-            timeRemaining: a.timeRemaining || "",
-            affectedArea: a.affectedArea || "",
+            title: a.type || "Weather Alert",
+            severity: a.severity || "Yellow",
+            description: a.recommendation || "Please monitor weather conditions",
+            timeRemaining: a.time || "",
+            affectedArea: "",
             coordinates: coords,
-            link: a.link || "",
-            date: a.date || a.pubDate || new Date().toISOString(),
+            link: "",
+            date: a.time || new Date().toISOString(),
           };
         });
         
         setAlerts(normalized);
         
         if (normalized.length === 0) {
-          setError("No alerts found for selected region");
+          setError("No active weather alerts");
         }
         
         setLoading(false);
       } catch (err) {
-        console.error("Failed to fetch disaster alerts:", err);
+        console.error("Failed to fetch weather alerts:", err);
         if (mounted) {
-          setError(err instanceof Error ? err.message : "Failed to fetch alerts");
+          setError(err instanceof Error ? err.message : "Failed to fetch weather alerts");
           setAlerts([]);
           setLoading(false);
         }
@@ -348,13 +346,14 @@ export const DisasterAlerts = ({ onBack }: { onBack: () => void }) => {
                 
                 <div className="space-y-2 text-sm text-gray-600">
                   {loading ? (
-                    <p className="text-gray-500">Fetching NDMA alerts...</p>
+                    <p className="text-gray-500">Fetching weather alerts from Open-Meteo...</p>
                   ) : alerts.length === 0 ? (
                     <p className="text-green-600 font-semibold">✓ No active alerts - Stay safe!</p>
                   ) : (
                     <>
-                      <p>High severity: {alerts.filter((a) => a.severity === "High" || a.severity?.toLowerCase() === "high").length}</p>
-                      <p>Medium severity: {alerts.filter((a) => a.severity === "Medium" || a.severity?.toLowerCase() === "medium").length}</p>
+                      <p>Red alerts: {alerts.filter((a) => a.severity === "Red").length}</p>
+                      <p>Orange alerts: {alerts.filter((a) => a.severity === "Orange").length}</p>
+                      <p>Yellow alerts: {alerts.filter((a) => a.severity === "Yellow").length}</p>
                     </>
                   )}
                 </div>
@@ -364,50 +363,42 @@ export const DisasterAlerts = ({ onBack }: { onBack: () => void }) => {
                     setLoading(true);
                     const API_BASE = import.meta.env.PROD ? 'https://haritnavinya.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
                     
-                    const statesToFetch = selectedState === 'all' ? 
-                      ['maharashtra', 'karnataka', 'tamil nadu', 'uttar pradesh', 'delhi', 'west bengal', 'assam', 'kerala', 'rajasthan', 'goa', 'gujarat', 'odisha']
-                      : [selectedState];
+                    // Get coordinates for selected state
+                    let lat = 22.9734;
+                    let lon = 78.6569;
                     
-                    let allAlerts: any[] = [];
-                    let completed = 0;
+                    if (selectedState !== 'all') {
+                      const coords = (STATE_COORDINATES as any)[selectedState];
+                      if (coords) {
+                        [lat, lon] = coords;
+                      }
+                    }
                     
-                    statesToFetch.forEach(state => {
-                      fetch(`${API_BASE}/api/disaster/alerts?state=${state}`)
-                        .then(r => r.json())
-                        .then(data => {
-                          const alertsArray = data.alerts || [];
-                          allAlerts = [...allAlerts, ...alertsArray.map((a: any) => ({ 
-                            ...a, 
-                            state: a.state || state,
-                            id: a.guid || a.id || String(Math.random()),
-                          }))];
-                          completed++;
-                          if (completed === statesToFetch.length) {
-                            const normalized = allAlerts.map((a: any) => ({
-                              id: a.id,
-                              state: a.state,
-                              title: a.title || a.type || "Alert",
-                              severity: a.severity || "Medium",
-                              description: a.description || a.contentSnippet || "",
-                              timeRemaining: a.timeRemaining || "",
-                              affectedArea: a.affectedArea || "",
-                              coordinates: a.coordinates || (STATE_COORDINATES as any)[a.state?.replace(/^.*?(?=[A-Z])/g, '').trim()] || undefined,
-                              link: a.link || "",
-                              date: a.date || a.pubDate || new Date().toISOString(),
-                            }));
-                            setAlerts(normalized);
-                            setError(normalized.length === 0 ? "No alerts found" : null);
-                            setLoading(false);
-                          }
-                        })
-                        .catch(err => {
-                          completed++;
-                          if (completed === statesToFetch.length) {
-                            setError(err.message);
-                            setLoading(false);
-                          }
-                        });
-                    });
+                    fetch(`${API_BASE}/api/weather?lat=${lat}&lon=${lon}`)
+                      .then(r => r.json())
+                      .then(data => {
+                        const weatherAlerts = data.alerts || [];
+                        const state = selectedState === 'all' ? "India" : selectedState;
+                        const normalized = weatherAlerts.map((a: any, idx: number) => ({
+                          id: `weather-${idx}-${Date.now()}`,
+                          state,
+                          title: a.type || "Weather Alert",
+                          severity: a.severity || "Yellow",
+                          description: a.recommendation || "Please monitor weather conditions",
+                          timeRemaining: a.time || "",
+                          affectedArea: "",
+                          coordinates: (STATE_COORDINATES as any)[state] || [lat, lon],
+                          link: "",
+                          date: a.time || new Date().toISOString(),
+                        }));
+                        setAlerts(normalized);
+                        setError(normalized.length === 0 ? "No active alerts" : null);
+                        setLoading(false);
+                      })
+                      .catch(err => {
+                        setError(err.message);
+                        setLoading(false);
+                      });
                   }}
                   className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white"
                   size="sm"
@@ -422,14 +413,14 @@ export const DisasterAlerts = ({ onBack }: { onBack: () => void }) => {
               {loading ? (
                 <Card className="bg-gray-50">
                   <CardContent className="p-4 text-center">
-                    <p className="text-gray-600 text-sm">Loading alerts from NDMA SACHET...</p>
+                    <p className="text-gray-600 text-sm">Loading weather alerts from Open-Meteo...</p>
                   </CardContent>
                 </Card>
               ) : alerts.length === 0 ? (
                 <Card className="bg-green-50 border-green-200">
                   <CardContent className="p-4 text-center">
                     <p className="text-green-700 font-semibold">All systems normal</p>
-                    <p className="text-xs text-green-600 mt-1">No disaster alerts in your region</p>
+                    <p className="text-xs text-green-600 mt-1">No weather alerts in your region</p>
                   </CardContent>
                 </Card>
               ) : (
