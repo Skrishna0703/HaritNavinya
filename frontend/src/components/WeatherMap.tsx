@@ -23,17 +23,19 @@ L.Icon.Default.mergeOptions({
 export function WeatherMap({ lat, lon, apiKey, mapType = 'temperature' }: WeatherMapProps) {
   const [selectedLayer, setSelectedLayer] = useState<'temperature' | 'precipitation' | 'wind' | 'clouds' | 'pressure'>(mapType);
 
-  // OpenWeatherMap API key from environment (if provided) or from props
-  const owmApiKey = apiKey || import.meta.env.VITE_OPENWEATHER_API_KEY || 'YOUR_API_KEY';
+  // ✅ Primary weather data source: Open-Meteo (backend /api/weather endpoint)
+  // Optional: OpenWeatherMap API key for advanced map visualization layers
+  const owmApiKey = apiKey || import.meta.env.VITE_OPENWEATHER_API_KEY;
+  const hasMapTiles = owmApiKey && owmApiKey !== 'YOUR_API_KEY';
 
-  // OpenWeatherMap tile URLs for different layers
-  const layerUrls = {
+  // OpenWeatherMap tile URLs for different layers (optional enhancement)
+  const layerUrls = hasMapTiles ? {
     temperature: `https://tile.openweathermap.org/data/temp_new/{z}/{x}/{y}.png?appid=${owmApiKey}`,
     precipitation: `https://tile.openweathermap.org/data/precipitation_new/{z}/{x}/{y}.png?appid=${owmApiKey}`,
     wind: `https://tile.openweathermap.org/data/wind_new/{z}/{x}/{y}.png?appid=${owmApiKey}`,
     clouds: `https://tile.openweathermap.org/data/clouds_new/{z}/{x}/{y}.png?appid=${owmApiKey}`,
     pressure: `https://tile.openweathermap.org/data/pressure_new/{z}/{x}/{y}.png?appid=${owmApiKey}`,
-  };
+  } : {};
 
   const layerLabels = {
     temperature: '🌡️ Temperature',
@@ -95,26 +97,33 @@ export function WeatherMap({ lat, lon, apiKey, mapType = 'temperature' }: Weathe
             >
               🗺️ Interactive Weather Map
             </motion.h3>
-            <div className="flex flex-wrap gap-2">
-              {(Object.keys(layerLabels) as Array<keyof typeof layerLabels>).map((layer, index) => (
-                <motion.button
-                  key={layer}
-                  onClick={() => setSelectedLayer(layer)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    selectedLayer === layer
-                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
-                      : 'bg-white text-gray-700 border border-gray-200 hover:border-orange-300'
-                  }`}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                  whileHover={{ scale: 1.05, translateY: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {layerLabels[layer]}
-                </motion.button>
-              ))}
-            </div>
+            {hasMapTiles ? (
+              <div className="flex flex-wrap gap-2">
+                {(Object.keys(layerLabels) as Array<keyof typeof layerLabels>).map((layer, index) => (
+                  <motion.button
+                    key={layer}
+                    onClick={() => setSelectedLayer(layer)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      selectedLayer === layer
+                        ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
+                        : 'bg-white text-gray-700 border border-gray-200 hover:border-orange-300'
+                    }`}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    whileHover={{ scale: 1.05, translateY: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {layerLabels[layer]}
+                  </motion.button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-600">
+                ℹ️ Weather data is provided by <strong>Open-Meteo</strong>. 
+                Add an OpenWeatherMap API key to enable advanced map visualization layers.
+              </p>
+            )}
           </motion.div>
 
           {/* Map Container */}
@@ -137,21 +146,23 @@ export function WeatherMap({ lat, lon, apiKey, mapType = 'temperature' }: Weathe
                 maxZoom={19}
               />
 
-              {/* Weather Overlay Layer with Fade Animation */}
-              <motion.div
-                key={selectedLayer}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.7 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <TileLayer
-                  url={layerUrls[selectedLayer]}
-                  attribution='&copy; <a href="https://openweathermap.org">OpenWeatherMap</a>'
-                  maxZoom={19}
-                  opacity={0.7}
-                />
-              </motion.div>
+              {/* Weather Overlay Layer - Only if API key available */}
+              {hasMapTiles && (
+                <motion.div
+                  key={selectedLayer}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.7 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <TileLayer
+                    url={layerUrls[selectedLayer]}
+                    attribution='&copy; <a href="https://openweathermap.org">OpenWeatherMap</a>'
+                    maxZoom={19}
+                    opacity={0.7}
+                  />
+                </motion.div>
+              )}
 
               {/* User Location Marker with Spring Animation */}
               <motion.div
@@ -183,15 +194,15 @@ export function WeatherMap({ lat, lon, apiKey, mapType = 'temperature' }: Weathe
               </motion.div>
             </MapContainer>
 
-            {/* API Key Warning */}
-            {owmApiKey === 'YOUR_API_KEY' && (
+            {/* API Key Warning - Optional Enhancement */}
+            {!hasMapTiles && (
               <motion.div 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.4 }}
-                className="absolute top-4 left-4 z-20 bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded-lg text-sm"
+                className="absolute top-4 left-4 z-20 bg-blue-100 border border-blue-400 text-blue-800 px-4 py-2 rounded-lg text-sm"
               >
-                ⚠️ Add VITE_OPENWEATHER_API_KEY to .env
+                ℹ️ Weather data from <strong>Open-Meteo</strong> | Add VITE_OPENWEATHER_API_KEY for map visualization
               </motion.div>
             )}
           </motion.div>

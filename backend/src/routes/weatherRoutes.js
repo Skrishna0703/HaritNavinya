@@ -65,20 +65,10 @@ router.get('/', async (req, res) => {
   } catch (error) {
     console.error('❌ Weather API error:', error.message);
 
-    // Check if it's due to missing API key
-    if (error.message.includes('OPENWEATHER_API_KEY')) {
-      return res.status(503).json({
-        success: false,
-        error: 'Service Unavailable',
-        message: 'OpenWeather API key is not configured. Please set OPENWEATHER_API_KEY environment variable.',
-        debug: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
-    }
-
     res.status(500).json({
       success: false,
       error: 'Internal Server Error',
-      message: 'Failed to fetch weather data',
+      message: 'Failed to fetch weather data from Open-Meteo API',
       debug: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
