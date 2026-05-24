@@ -854,54 +854,6 @@ function AppContent() {
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <motion.div
-                          animate={{ 
-                            rotate: [0, 10, -10, 10, 0],
-                            scale: [1, 1.1, 1]
-                          }}
-                          transition={{ 
-                            duration: 4,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        >
-                          <Sun className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
-                        </motion.div>
-                        <div>
-                          <motion.div 
-                            className="text-2xl sm:text-3xl font-bold text-gray-800"
-                            initial={{ opacity: 0, y: 10 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                          >
-                            28°C
-                          </motion.div>
-                          <div className="text-gray-600 text-xs sm:text-sm">Sunny</div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-4 border-t border-gray-200">
-                      <div className="flex items-center gap-2">
-                        <CloudRain className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
-                        <div>
-                          <div className="text-xs sm:text-sm text-gray-600">Humidity</div>
-                          <div className="font-medium text-sm sm:text-base">65%</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Wind className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
-                        <div>
-                          <div className="text-xs sm:text-sm text-gray-600">Wind</div>
-                          <div className="font-medium text-sm sm:text-base">12 km/h</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
               </motion.div>
@@ -1571,7 +1523,7 @@ function AppContent() {
               
               <div className="pt-4">
                 <p className="text-green-100 text-xs sm:text-sm">
-                  © 2024 HaritNavinya. Revolutionizing agriculture with artificial intelligence.
+                  © 2026 HaritNavinya. Revolutionizing agriculture with artificial intelligence.
                 </p>
               </div>
             </motion.div>

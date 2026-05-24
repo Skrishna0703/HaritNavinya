@@ -19,6 +19,7 @@ import { fileURLToPath } from 'url';
 import mandiRoutes from './routes/mandiRoutes.js';
 import soilRoutes from './routes/soilRoutes.js';
 import weatherRoutes from './routes/weatherRoutes.js';
+import disasterRoutes from './routes/disasterRoutes.js';
 import { loadSoilDataFromCSV } from './services/csvDataParser.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -84,7 +85,8 @@ app.get('/api/health', (req, res) => {
     modules: [
       { name: 'Weather API', endpoint: '/api/weather', status: '✅' },
       { name: 'Soil Fertility Map', endpoint: '/api/soil', status: '✅' },
-      { name: 'Market Data', endpoint: '/api/dashboard', status: '✅' }
+      { name: 'Market Data', endpoint: '/api/dashboard', status: '✅' },
+      { name: 'Disaster Alerts', endpoint: '/api/disaster/alerts', status: '✅' }
     ]
   });
 });
@@ -95,6 +97,9 @@ app.use('/api/weather', weatherRoutes);
 
 // Soil API routes
 app.use('/api/soil', soilRoutes);
+
+// Disaster Alerts routes (NDMA SACHET RSS Feed)
+app.use('/api/disaster', disasterRoutes);
 
 // Mandi/Market API routes (most generic, should be last)
 app.use('/api', mandiRoutes);
@@ -135,6 +140,15 @@ app.get('/', (req, res) => {
           'States': 'GET /api/available-states',
           'Commodities': 'GET /api/available-commodities?state=Maharashtra',
           'Market Data': 'GET /api/market-data?state=Maharashtra&limit=20'
+        }
+      },
+      disaster: {
+        description: 'NDMA SACHET Disaster Alerts via RSS Feed',
+        startHere: 'GET /api/disaster/health',
+        endpoints: {
+          'Get Alerts': 'GET /api/disaster/alerts?state=maharashtra',
+          'Supported States': 'GET /api/disaster/supported-states',
+          'Health Check': 'GET /api/disaster/health'
         }
       }
     },
