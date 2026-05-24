@@ -98,6 +98,7 @@ function AppContent() {
   // Real API data states
   const [weatherData, setWeatherData] = useState<any>(null);
   const [marketPricesData, setMarketPricesData] = useState<string[]>([]);
+  const [marketState, setMarketState] = useState<string>('Maharashtra');
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [marketLoading, setMarketLoading] = useState(false);
   
@@ -191,7 +192,7 @@ function AppContent() {
               setWeatherData(null);
               setWeatherLoading(false);
             },
-            { enableHighAccuracy: true, timeout: 10000 }
+            { enableHighAccuracy: false, timeout: 30000, maximumAge: 300000 }
           );
         } else {
           // No geolocation support - show no data
@@ -206,29 +207,37 @@ function AppContent() {
     fetchWeatherForUserLocation();
   }, []);
 
-  // Fetch market prices data
+  // Fetch market prices data in real-time
   useEffect(() => {
     const fetchMarketPrices = async () => {
       try {
         setMarketLoading(true);
-        // Fetch from Maharashtra (default state)
+        const states = ['Maharashtra', 'Karnataka', 'Tamil Nadu', 'Uttar Pradesh', 'Punjab', 'Gujarat'];
+        setMarketState(states.join(' • '));
         const API_BASE = import.meta.env.PROD ? 'https://haritnavinya.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
-        const response = await fetch(`${API_BASE}/api/dashboard?state=Maharashtra`);
-        if (response.ok) {
-          const data = await response.json();
-          // Format prices for display
-          const prices = data.todayPrices?.slice(0, 8).map((item: any) => {
-            // Format change with percentage
-            const changeStr = item.change || item.change_percent ? 
-              (item.change || item.change_percent) : '+0%';
-            const changeDisplay = changeStr.toString().includes('%') ? changeStr : `${changeStr}%`;
-            // Display with emoji and proper formatting
-            return `🌾 ${item.commodity}: ₹${item.price} (${changeDisplay})`;
-          }) || [];
-          setMarketPricesData(prices.length > 0 ? prices : []);
-        } else {
-          setMarketPricesData([]);
+        
+        let allPrices: string[] = [];
+        
+        for (const state of states) {
+          try {
+            const response = await fetch(`${API_BASE}/api/dashboard?state=${state}`);
+            if (response.ok) {
+              const data = await response.json();
+              // Get top 4 prices from each state
+              const statePrices = data.todayPrices?.slice(0, 4).map((item: any) => {
+                const changeStr = item.change || item.change_percent ? 
+                  (item.change || item.change_percent) : '+0%';
+                const changeDisplay = changeStr.toString().includes('%') ? changeStr : `${changeStr}%`;
+                return `🌾 ${item.commodity} (${state}): ₹${item.price} (${changeDisplay})`;
+              }) || [];
+              allPrices = [...allPrices, ...statePrices];
+            }
+          } catch (error) {
+            console.error(`Failed to fetch prices for ${state}:`, error);
+          }
         }
+        
+        setMarketPricesData(allPrices.length > 0 ? allPrices : []);
       } catch (error) {
         console.error('Failed to fetch market prices:', error);
         setMarketPricesData([]);
@@ -236,7 +245,15 @@ function AppContent() {
         setMarketLoading(false);
       }
     };
+    
+    // Fetch immediately on mount
     fetchMarketPrices();
+    
+    // Refresh every 30 seconds for real-time data
+    const interval = setInterval(fetchMarketPrices, 30000);
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
   }, []);
   
   const handleFeatureClick = (route: string, externalUrl?: string) => {
@@ -879,7 +896,7 @@ function AppContent() {
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-800 text-sm sm:text-base">Today's Mandi Prices</h3>
-                      <p className="text-gray-600 text-xs sm:text-sm">{marketLoading ? 'Loading...' : 'Live market rates'}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm">{marketLoading ? 'Loading...' : `Live market rates across India`}</p>
                     </div>
                   </div>
                   
