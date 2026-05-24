@@ -42,7 +42,7 @@ services:
       - key: LOG_LEVEL
         value: info
       - key: OPENWEATHER_API_KEY
-        sync: false
+        value: f6c3bb91052b9f8d79aefcc5c7efabbf
       - key: GEMINI_API_KEY
         sync: false
       - key: AGMARKNET_API_KEY

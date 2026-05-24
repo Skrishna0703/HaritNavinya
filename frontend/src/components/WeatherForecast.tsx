@@ -17,7 +17,6 @@ import {
   Calendar
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
-import { WeatherMap } from './WeatherMap';
 
 interface WeatherForecastProps {
   onBack: () => void;
@@ -60,7 +59,7 @@ export function WeatherForecast({ onBack }: WeatherForecastProps) {
   const forecastDates = generateFutureDates(7);
   const rainfallDates = generateFutureDates(15);
 
-  const API_BASE = import.meta.env.PROD ? 'https://haritnavinya.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000');
+  const API_BASE = import.meta.env.PROD ? 'https://haritnavinya.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
 
   // Fallback weather data with current dates
   const fallbackWeather = {
@@ -152,12 +151,26 @@ export function WeatherForecast({ onBack }: WeatherForecastProps) {
       console.log('🌤️ Fetching weather from:', url);
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => {
+        console.warn('⏱️ Weather request timeout - aborting after 30 seconds');
+        controller.abort();
+      }, 30000); // 30 second timeout
       
-      const res = await fetch(url, { signal: controller.signal }).catch((err) => {
+      let res;
+      try {
+        res = await fetch(url, { signal: controller.signal });
+      } catch (err: any) {
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+          console.warn('❌ Weather request aborted (timeout or cancelled)');
+          setError('Weather request timed out. Please try again.');
+          setWeatherData(null);
+          setLoading(false);
+          return;
+        }
         console.warn('❌ Fetch failed:', err.message);
-        return null;
-      });
+        throw err;
+      }
       clearTimeout(timeoutId);
       
       if (res && res.ok) {
@@ -467,18 +480,6 @@ export function WeatherForecast({ onBack }: WeatherForecastProps) {
             </Card>
           </div>
         </div>
-
-        {/* Interactive Weather Map */}
-        {latLon && (
-          <div className="mb-8">
-            <WeatherMap 
-              lat={latLon.lat} 
-              lon={latLon.lon}
-              apiKey={import.meta.env.VITE_OPENWEATHER_API_KEY}
-              mapType="temperature"
-            />
-          </div>
-        )}
 
         {/* Rainfall Chart */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">

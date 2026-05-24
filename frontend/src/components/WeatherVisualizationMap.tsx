@@ -72,8 +72,22 @@ export function WeatherVisualizationMap({ onBack }: WeatherMapProps) {
   async function fetchWeather(lat: number, lon: number) {
     try {
       const url = `${API_BASE}/api/weather?lat=${lat}&lon=${lon}`;
-      const res = await fetch(url);
-      if (res.ok) {
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        console.warn('⏱️ Weather request timeout');
+        controller.abort();
+      }, 30000); // 30 second timeout
+      
+      try {
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        if (!res.ok) {
+          console.error(`Weather API error: ${res.status}`);
+          throw new Error(`HTTP ${res.status}`);
+        }
+        
         const data = await res.json();
         setCurrentWeather(data.currentWeather || {
           temperature: 28,
@@ -84,9 +98,26 @@ export function WeatherVisualizationMap({ onBack }: WeatherMapProps) {
           visibility: 10,
           feelsLike: 30
         });
+      } catch (err: any) {
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+          console.warn('⏱️ Request timed out - using fallback weather');
+        } else {
+          console.error('Failed to fetch weather:', err);
+        }
+        // Use fallback weather on error
+        setCurrentWeather({
+          temperature: 28,
+          condition: 'Partly Cloudy',
+          humidity: 65,
+          windSpeed: 12,
+          pressure: 1013,
+          visibility: 10,
+          feelsLike: 30
+        });
       }
     } catch (err) {
-      console.error('Failed to fetch weather:', err);
+      console.error('Unexpected error in fetchWeather:', err);
       setCurrentWeather({
         temperature: 28,
         condition: 'Partly Cloudy',
@@ -272,7 +303,6 @@ export function WeatherVisualizationMap({ onBack }: WeatherMapProps) {
               Temperature Scale
             </div>
           </div>
-        </div>
 
         {/* Right Sidebar - Weather Details & Rainfall */}
         <motion.div 

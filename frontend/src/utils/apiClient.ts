@@ -19,7 +19,7 @@ export const getWeatherApiUrl = (): string => {
   if (import.meta.env.PROD) {
     return 'https://haritnavinya.onrender.com';
   }
-  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 };
 
 export const apiClient = {

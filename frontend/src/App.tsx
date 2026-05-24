@@ -12,7 +12,6 @@ import { FertilizerRecommendation } from "./components/FertilizerRecommendation"
 import { DisasterAlerts } from "./components/DisasterAlertsClean";
 import { SoilDataInsights } from "./components/SoilDataInsights";
 import { WeatherForecast } from "./components/WeatherForecast";
-import { WeatherVisualizationMap } from "./components/WeatherVisualizationMap";
 import { RainfallForecastVisualization } from "./components/RainfallForecastVisualization";
 import { SoilTestingCenters } from "./components/SoilTestingCenters";
 import { SmartFarmingGuidance } from "./components/SmartFarmingGuidance";
@@ -57,7 +56,7 @@ import {
   Bell
 } from "lucide-react";
 
-type PageType = 'home' | 'plant-disease' | 'market-price' | 'ai-chatbot' | 'crop-recommendation' | 'fertilizer-recommendation' | 'disaster-alerts' | 'soil-data-insights' | 'weather-forecast' | 'weather-map' | 'rainfall-forecast' | 'soil-testing-centers' | 'smart-farming-guidance' | 'farmer-officer-connect' | 'post-harvest-support';
+type PageType = 'home' | 'plant-disease' | 'market-price' | 'ai-chatbot' | 'crop-recommendation' | 'fertilizer-recommendation' | 'disaster-alerts' | 'soil-data-insights' | 'weather-forecast' | 'rainfall-forecast' | 'soil-testing-centers' | 'smart-farming-guidance' | 'farmer-officer-connect' | 'post-harvest-support';
 
 // Custom loading messages and GIFs for each page
 const loadingConfig: Record<string, { message: string; gifUrl?: string }> = {
@@ -69,7 +68,6 @@ const loadingConfig: Record<string, { message: string; gifUrl?: string }> = {
   'ai-chatbot': { message: 'Starting AI Assistant...', gifUrl: '/loading/chatbot.gif' },
   'soil-data-insights': { message: 'Analyzing Soil Data...', gifUrl: '/loading/soil.gif' },
   'weather-forecast': { message: 'Fetching Weather Data...', gifUrl: '/loading/weather.gif' },
-  'weather-map': { message: 'Loading Weather Map...', gifUrl: '/loading/weather.gif' },
   'rainfall-forecast': { message: 'Generating Rainfall Forecast...', gifUrl: '/loading/weather.gif' },
   'soil-testing-centers': { message: 'Finding Testing Centers...', gifUrl: '/loading/centers.gif' },
   'smart-farming-guidance': { message: 'Loading Smart Farming Guide...', gifUrl: '/loading/farming.gif' },
@@ -87,7 +85,7 @@ function AppContent() {
     return (savedPage && 
       ['home', 'plant-disease', 'market-price', 'ai-chatbot', 'crop-recommendation', 
        'fertilizer-recommendation', 'disaster-alerts', 'soil-data-insights', 
-       'weather-forecast', 'weather-map', 'rainfall-forecast', 'soil-testing-centers', 'smart-farming-guidance', 
+       'weather-forecast', 'rainfall-forecast', 'soil-testing-centers', 'smart-farming-guidance', 
        'farmer-officer-connect', 'post-harvest-support'].includes(savedPage)) 
       ? savedPage 
       : 'home';
@@ -135,40 +133,52 @@ function AppContent() {
           navigator.geolocation.getCurrentPosition(
             async (position) => {
               const { latitude, longitude } = position.coords;
+              let timeoutId: NodeJS.Timeout | null = null;
               try {
                 // Fetch weather from our backend API
-                const API_BASE = import.meta.env.PROD ? 'https://haritnavinya.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000');
-                const response = await fetch(`${API_BASE}/api/weather?lat=${latitude}&lon=${longitude}`);
-                if (response.ok) {
-                  const data = await response.json();
-                  
-                  // Get location name using reverse geocoding (free API)
-                  const locationResponse = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-                  ).catch(() => null);
-                  
-                  let locationName = 'Current Location';
-                  if (locationResponse?.ok) {
-                    const locationData = await locationResponse.json();
-                    const city = locationData.address?.city || locationData.address?.town || locationData.address?.village;
-                    const state = locationData.address?.state;
-                    locationName = city && state ? `${city}, ${state}` : locationData.address?.county || 'Current Location';
-                  }
-                  
-                  setWeatherData({
-                    location: { name: locationName },
-                    current: {
+                const API_BASE = import.meta.env.PROD ? 'https://haritnavinya.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+                
+                const controller = new AbortController();
+                timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+                
+                const response = await fetch(`${API_BASE}/api/weather?lat=${latitude}&lon=${longitude}`, { signal: controller.signal });
+                if (timeoutId) clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                  throw new Error(`Weather API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Get location name using reverse geocoding (free API)
+                const locationResponse = await fetch(
+                  `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+                ).catch(() => null);
+                
+                let locationName = 'Current Location';
+                if (locationResponse?.ok) {
+                  const locationData = await locationResponse.json();
+                  const city = locationData.address?.city || locationData.address?.town || locationData.address?.village;
+                  const state = locationData.address?.state;
+                  locationName = city && state ? `${city}, ${state}` : locationData.address?.county || 'Current Location';
+                }
+                
+                setWeatherData({
+                  location: { name: locationName },
+                  current: {
                       temp: data.currentWeather?.temperature || 28,
                       condition: data.currentWeather?.condition || 'Sunny',
                       humidity: data.currentWeather?.humidity || 65,
                       wind_speed: data.currentWeather?.windSpeed || 12
                     }
                   });
+              } catch (error: any) {
+                if (timeoutId) clearTimeout(timeoutId);
+                if (error.name === 'AbortError') {
+                  console.warn('⏱️ Weather request timed out');
                 } else {
-                  throw new Error('Weather API response not ok');
+                  console.error('Failed to fetch weather from API:', error);
                 }
-              } catch (error) {
-                console.error('Failed to fetch weather from API:', error);
                 // Show no data state, will be replaced when real data loads
                 setWeatherData(null);
               } finally {
@@ -439,15 +449,6 @@ function AppContent() {
       <>
         <LoadingScreen isVisible={isLoading} message={loadingMessage} />
         <WeatherForecast onBack={() => setCurrentPage('home')} />
-      </>
-    );
-  }
-
-  if (currentPage === 'weather-map') {
-    return (
-      <>
-        <LoadingScreen isVisible={isLoading} message={loadingMessage} />
-        <WeatherVisualizationMap onBack={() => setCurrentPage('home')} />
       </>
     );
   }
