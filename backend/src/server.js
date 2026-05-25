@@ -229,10 +229,7 @@ async function connectToMongoDB() {
 
     console.log('\n🔗 Connecting to MongoDB...');
     
-    await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
+    await mongoose.connect(mongoURI);
 
     console.log('✅ MongoDB connected successfully');
     console.log('📍 Database URL:', mongoURI.substring(0, 30) + '...');

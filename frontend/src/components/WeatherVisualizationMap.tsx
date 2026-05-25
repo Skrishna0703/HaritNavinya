@@ -30,7 +30,7 @@ export function WeatherVisualizationMap({ onBack }: WeatherMapProps) {
   const [loading, setLoading] = useState(true);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
-  const API_BASE = import.meta.env.PROD ? 'https://haritnavinya.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+  const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
 
   // Mock rainfall forecast data
   const rainfallForecast = [

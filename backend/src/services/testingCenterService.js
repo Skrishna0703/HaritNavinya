@@ -1,4 +1,21 @@
 import SoilTestingCenter from '../models/SoilTestingCenter.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load JSON fallback data
+let jsonFallbackData = [];
+try {
+  const jsonPath = path.join(__dirname, '../../soil-testing-centers.json');
+  const rawData = fs.readFileSync(jsonPath, 'utf-8');
+  jsonFallbackData = JSON.parse(rawData);
+  console.log('✅ JSON fallback data loaded:', jsonFallbackData.length, 'centers');
+} catch (error) {
+  console.warn('⚠️  Could not load JSON fallback data:', error.message);
+}
 
 /**
  * Get all soil testing centers
@@ -8,8 +25,8 @@ export async function getAllTestingCenters() {
     const centers = await SoilTestingCenter.find().sort({ state: 1, district: 1 });
     return centers;
   } catch (error) {
-    console.error('Error fetching all testing centers:', error.message);
-    throw error;
+    console.warn('⚠️  MongoDB error, using JSON fallback:', error.message);
+    return jsonFallbackData || [];
   }
 }
 
@@ -28,8 +45,11 @@ export async function getTestingCentersByState(state) {
     
     return centers;
   } catch (error) {
-    console.error('Error fetching centers by state:', error.message);
-    throw error;
+    console.warn('⚠️  MongoDB error, using JSON fallback:', error.message);
+    // Fallback to JSON data
+    return jsonFallbackData.filter(c => 
+      c.state && c.state.toLowerCase().includes(state.toLowerCase())
+    ).sort((a, b) => (a.district || '').localeCompare(b.district || ''));
   }
 }
 
@@ -48,6 +68,28 @@ export async function getTestingCentersByLocation(state, district) {
     
     if (district && district !== 'All') {
       query.district = new RegExp(`^${district}$`, 'i');
+      const centers = await SoilTestingCenter.find(query).sort({ district: 1 });
+      return centers;
+    }
+    
+    const centers = await SoilTestingCenter.find(query).sort({ district: 1 });
+    return centers;
+  } catch (error) {
+    console.warn('⚠️  MongoDB error, using JSON fallback:', error.message);
+    // Fallback to JSON data
+    let filtered = jsonFallbackData.filter(c => 
+      c.state && c.state.toLowerCase().includes(state.toLowerCase())
+    );
+    
+    if (district && district !== 'All') {
+      filtered = filtered.filter(c => 
+        c.district && c.district.toLowerCase().includes(district.toLowerCase())
+      );
+    }
+    
+    return filtered.sort((a, b) => (a.district || '').localeCompare(b.district || ''));
+  }
+}
     }
     
     const centers = await SoilTestingCenter.find(query).sort({ name: 1 });
@@ -79,8 +121,15 @@ export async function searchTestingCenters(searchQuery) {
     
     return centers;
   } catch (error) {
-    console.error('Error searching centers:', error.message);
-    throw error;
+    console.warn('⚠️  MongoDB error, using JSON fallback:', error.message);
+    // Fallback to JSON search
+    const query = searchQuery.toLowerCase();
+    return jsonFallbackData.filter(c =>
+      (c.name && c.name.toLowerCase().includes(query)) ||
+      (c.address && c.address.toLowerCase().includes(query)) ||
+      (c.district && c.district.toLowerCase().includes(query)) ||
+      (c.state && c.state.toLowerCase().includes(query))
+    ).sort((a, b) => (a.state || '').localeCompare(b.state || ''));
   }
 }
 
@@ -92,8 +141,10 @@ export async function getUniqueStates() {
     const states = await SoilTestingCenter.distinct('state');
     return states.sort();
   } catch (error) {
-    console.error('Error fetching unique states:', error.message);
-    throw error;
+    console.warn('⚠️  MongoDB error, using JSON fallback:', error.message);
+    // Fallback to JSON
+    const states = [...new Set(jsonFallbackData.map(c => c.state).filter(Boolean))];
+    return states.sort();
   }
 }
 
@@ -112,8 +163,13 @@ export async function getDistrictsByState(state) {
     
     return districts.sort();
   } catch (error) {
-    console.error('Error fetching districts:', error.message);
-    throw error;
+    console.warn('⚠️  MongoDB error, using JSON fallback:', error.message);
+    // Fallback to JSON
+    const filtered = jsonFallbackData.filter(c => 
+      c.state && c.state.toLowerCase().includes(state.toLowerCase())
+    );
+    const districts = [...new Set(filtered.map(c => c.district).filter(Boolean))];
+    return districts.sort();
   }
 }
 

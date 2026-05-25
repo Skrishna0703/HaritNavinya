@@ -16,8 +16,6 @@ export const connectMongoDB = async () => {
     console.log('📍 Database URL:', MONGODB_URI.replace(/\/\/.*@/, '//***@'));
 
     await mongoose.connect(MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
       maxPoolSize: 10,

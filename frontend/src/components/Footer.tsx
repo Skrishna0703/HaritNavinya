@@ -32,8 +32,7 @@ export function Footer() {
             {/* Copyright and Dataset */}
             <p style={{ color: '#FFFFFF' }} className="text-sm leading-relaxed font-medium pt-5">
               © {currentYear} HaritNavinya. {' '}
-               
-              <p
+              <a
                 href="https://soilhealth.dac.gov.in/"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -41,7 +40,7 @@ export function Footer() {
                 className="font-bold transition-colors duration-300 underline hover:text-green-300"
               >
                Dataset:soilhealth.dac.gov.in
-              </p>
+              </a>
             </p>
           </div>
         </div>

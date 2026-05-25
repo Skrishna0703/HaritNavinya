@@ -62,7 +62,7 @@ export function MarketPriceForecast({ onBack }: MarketPriceForecastProps) {
   const fetchAllIndiaData = async () => {
     try {
       setAllIndiaLoading(true);
-      const API_BASE = import.meta.env.PROD ? 'https://haritnavinya.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+      const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
       
       // Get list of available states first
       const statesRes = await fetch(`${API_BASE}/api/available-states`, {
@@ -140,7 +140,7 @@ export function MarketPriceForecast({ onBack }: MarketPriceForecastProps) {
   const fetchAllCrops = async () => {
     try {
       setAllCropsLoading(true);
-      const API_BASE = import.meta.env.PROD ? 'https://haritnavinya.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+      const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
       const cropsDataByState: { [state: string]: MarketPrice[] } = {};
       
       // Get list of available states

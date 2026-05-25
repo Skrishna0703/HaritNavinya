@@ -2,7 +2,7 @@ services:
   - type: static_site
     name: haritnavinya-frontend
     plan: free
-    staticPublishPath: frontend/build
+    staticPublishPath: frontend/dist
     buildCommand: cd frontend && npm install --legacy-peer-deps && npm run build
     autoDeployOnPush: true
     envVars:
@@ -23,7 +23,8 @@ services:
     startCommand: cd backend && npm start
     autoDeployOnPush: true
     healthCheckPath: /api/health
-    healthCheckInterval: 60
+    healthCheckInterval: 30
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
@@ -38,14 +39,13 @@ services:
           name: haritnavinya-db
           property: connectionString
       - key: CORS_ORIGIN
-        value: "http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173,https://haritnavinya.netlify.app,https://haritnavinya.onrender.com,https://haritnavinya-backend.onrender.com,https://haritnavinya-frontend.onrender.com"
+        value: "https://haritnavinya-frontend.onrender.com,https://yourdomain.com,http://localhost:3000,http://localhost:5173"
       - key: LOG_LEVEL
         value: info
-      # ✅ Weather API now uses Open-Meteo (no API key required)
       - key: GEMINI_API_KEY
         sync: false
       - key: AGMARKNET_API_KEY
-        sync: false
+        value: "579b464db66ec23bdd0000017954c766c08b48836cca314f2ac28314"
       - key: DISASTER_PORT
         value: "4000"
 
