@@ -20,6 +20,7 @@ import {
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { Footer } from './Footer';
 
 // Leaflet Popup Styles
 const popupStyles = `
@@ -216,7 +217,7 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
   };
 
   return (
-    <div className="min-h-screen bg-white font-['Poppins',sans-serif]">
+    <div className="flex flex-col min-h-screen bg-white font-['Poppins',sans-serif]">
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 text-center shadow-2xl">
@@ -249,7 +250,7 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold gradient-text mb-4">
@@ -718,6 +719,9 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
