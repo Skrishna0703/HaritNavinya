@@ -67,36 +67,96 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
   const [testingCenters, setTestingCenters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load data from JSON file
+  // Load data from MongoDB via API
   React.useEffect(() => {
     const loadData = async () => {
       try {
-        const response = await fetch('/soil-testing-centers.json');
-        const data = await response.json();
-        setTestingCenters(data);
+        setLoading(true);
+        
+        // Fetch from backend API instead of static JSON
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${apiUrl}/api/testing-centers`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch testing centers from API');
+        }
+        
+        const result = await response.json();
+        const rawData = result.data || []; // API returns { success, data, count }
+        
+        // Transform the raw data to match component requirements
+        const transformedData = rawData.map((center: any, index: number) => {
+          // Parse state and district from database fields
+          let district = center.district || 'Unknown';
+          let state = center.state || 'Unknown';
+          
+          // Generate mock coordinates based on state (already in DB, but use them)
+          const stateCoordinates: any = {
+            'ARUNACHAL PRADESH': { lat: 28.2180, lng: 94.7278 },
+            'ASSAM': { lat: 26.1445, lng: 91.7362 },
+            'BIHAR': { lat: 25.0961, lng: 85.3131 },
+            'CHHATTISGARH': { lat: 21.2787, lng: 81.8661 },
+            'GOA': { lat: 15.2993, lng: 73.8243 },
+            'GUJARAT': { lat: 22.2587, lng: 71.1924 },
+            'HARYANA': { lat: 29.0588, lng: 77.0745 },
+            'HIMACHAL PRADESH': { lat: 31.7433, lng: 77.1205 },
+            'JHARKHAND': { lat: 23.6102, lng: 85.2799 },
+            'KARNATAKA': { lat: 15.3173, lng: 75.7139 },
+            'KERALA': { lat: 10.8505, lng: 76.2711 },
+            'MADHYA PRADESH': { lat: 22.9375, lng: 78.6553 },
+            'MAHARASHTRA': { lat: 19.7515, lng: 75.7139 },
+            'MANIPUR': { lat: 24.6637, lng: 93.9063 },
+            'MEGHALAYA': { lat: 25.4670, lng: 91.3662 },
+            'MIZORAM': { lat: 23.1815, lng: 92.9789 },
+            'NAGALAND': { lat: 26.1584, lng: 94.5624 },
+            'ODISHA': { lat: 20.9517, lng: 85.0985 },
+            'PUNJAB': { lat: 31.5497, lng: 74.3436 },
+            'RAJASTHAN': { lat: 27.0238, lng: 74.2179 },
+            'SIKKIM': { lat: 27.5330, lng: 88.5122 },
+            'TAMIL NADU': { lat: 11.1271, lng: 78.6569 },
+            'TELANGANA': { lat: 18.1124, lng: 79.0193 },
+            'TRIPURA': { lat: 23.9408, lng: 91.9882 },
+            'UTTAR PRADESH': { lat: 26.8467, lng: 80.9462 },
+            'UTTARAKHAND': { lat: 30.0668, lng: 79.0193 },
+            'WEST BENGAL': { lat: 24.8735, lng: 88.3063 }
+          };
+          
+          const coords = stateCoordinates[state] || { lat: 20.5934, lng: 78.9629 };
+          
+          return {
+            id: center._id || index + 1,
+            name: center.name || 'Unknown Laboratory',
+            state: state,
+            district: district,
+            address: center.address || 'Address not available',
+            pincode: center.pincode || 'N/A',
+            contact: center.phone || center.email || 'Contact not available',
+            email: center.email || 'N/A',
+            phone: center.phone || 'N/A',
+            latitude: center.latitude || coords.lat,
+            longitude: center.longitude || coords.lng,
+            rating: center.rating || 4.5,
+            services: center.services || [
+              'Soil pH Testing',
+              'Nutrient Testing',
+              'Organic Matter Analysis',
+              'Heavy Metal Testing'
+            ],
+            features: ['Certified Laboratory', 'Government Accredited'],
+            price: '₹150 - ₹600',
+            turnaround: '2-3 days',
+            timings: center.operatingHours?.open + ' - ' + center.operatingHours?.close || '9:00 AM - 5:00 PM',
+            type: 'Government',
+            availability: Math.random() > 0.3 ? 'Available' : 'Busy',
+            distance: Math.floor(Math.random() * 50) + 5,
+            waitTime: Math.floor(Math.random() * 3) + 1 + ' days'
+          };
+        });
+        
+        setTestingCenters(transformedData);
       } catch (error) {
         console.error('Error loading soil testing centers:', error);
-        // Fallback to default centers if JSON fails to load
-        setTestingCenters([
-          {
-            id: 1,
-            name: "District Soil Testing Laboratory Pune",
-            state: "Maharashtra",
-            district: "Pune",
-            address: "Shivajinagar, Pune, Maharashtra, 411005, India",
-            pincode: "411005",
-            contact: "+919876543210",
-            latitude: 18.5204,
-            longitude: 73.8567,
-            rating: 4.6,
-            services: ["Soil pH Testing", "NPK Analysis", "Micronutrient Testing"],
-            features: ["Online Booking", "Home Collection"],
-            price: "₹150 - ₹500",
-            turnaround: "2-3 days",
-            timings: "9:00 AM - 5:00 PM",
-            type: "Government"
-          }
-        ]);
+        setTestingCenters([]);
       } finally {
         setLoading(false);
       }
@@ -223,7 +283,7 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
                   {/* State Filter */}
                   <div className="flex items-center gap-2 min-w-max">
                     <MapPin className="w-5 h-5 text-gray-500" />
-                    <Select value={selectedState} onValueChange={(value) => {
+                    <Select value={selectedState} onValueChange={(value: string) => {
                       setSelectedState(value);
                       setSelectedDistrict(''); // Reset district when state changes
                     }}>
@@ -464,16 +524,23 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
                           <div className="mt-2 pt-2 border-t border-gray-200 flex items-center justify-between">
                             <div className="flex items-center gap-1">
                               <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                              <span className="font-bold text-green-600">{center.rating}</span>
+                              <span className="font-bold text-green-600">{center.rating.toFixed(1)}</span>
                             </div>
                             <span className="text-sm text-gray-600">Type: {center.type}</span>
                           </div>
 
-                          <p className="text-sm font-semibold text-gray-700 mt-2">
-                            📞 {center.contact}
-                          </p>
+                          {center.phone && center.phone !== 'N/A' && (
+                            <p className="text-sm font-semibold text-gray-700 mt-2">
+                              📞 {center.phone}
+                            </p>
+                          )}
+                          {center.email && center.email !== 'N/A' && (
+                            <p className="text-sm text-gray-600">
+                              ✉️ {center.email}
+                            </p>
+                          )}
                           <p className="text-sm text-gray-600">
-                            💰 ₹{center.price} | ⏱️ {center.turnaround} days
+                            💰 {center.price} | ⏱️ {center.turnaround}
                           </p>
 
                           <button
@@ -513,94 +580,84 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
           </Card>
         ) : (
           // List View
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCenters.map((center, index) => (
-              <Card key={index} className="border-0 shadow-xl rounded-3xl overflow-hidden">
-                <CardContent className="p-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Center Info */}
-                    <div className="lg:col-span-2 space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="text-2xl font-bold mb-2">{center.name}</h3>
-                          <div className="flex items-center gap-2 mb-2">
-                            <MapPin className="w-4 h-4 text-gray-500" />
-                            <span className="text-gray-600">{center.address}</span>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-1">
-                              <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                              <span className="font-medium">{center.rating}</span>
-                            </div>
-                            <span className="text-gray-500">•</span>
-                            <span className="text-gray-600">{center.distance} km away</span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex flex-col gap-2">
-                          <Badge className={getAvailabilityColor(center.availability)}>
-                            {center.availability}
-                          </Badge>
-                          <Badge className={getTypeColor(center.type)}>
-                            {center.type}
-                          </Badge>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <h5 className="font-bold text-sm text-gray-700 mb-2">Services Offered</h5>
-                          <div className="flex flex-wrap gap-1">
-                            {center.services.slice(0, 3).map((service, i) => (
-                              <Badge key={i} variant="outline" className="text-xs">
-                                {service}
-                              </Badge>
-                            ))}
-                            {center.services.length > 3 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{center.services.length - 3} more
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-
-                        <div>
-                          <h5 className="font-bold text-sm text-gray-700 mb-2">Special Features</h5>
-                          <div className="flex flex-wrap gap-1">
-                            {center.features.slice(0, 2).map((feature, i) => (
-                              <Badge key={i} variant="outline" className="text-xs bg-green-50 text-green-700">
-                                {feature}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
-                        <div>
-                          <p className="text-sm text-gray-600">Price Range</p>
-                          <p className="font-bold text-green-600">{center.price}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Turnaround</p>
-                          <p className="font-bold">{center.waitTime}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Timings</p>
-                          <p className="font-bold text-sm">{center.timings}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Contact</p>
-                          <p className="font-bold text-sm">{center.contact}</p>
-                        </div>
+              <Card key={index} className="border-0 shadow-lg rounded-2xl overflow-hidden hover:shadow-xl transition-shadow">
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    {/* Header with Name and Location */}
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-1">{center.name}</h3>
+                      <div className="flex items-center gap-2 text-gray-500">
+                        <MapPin className="w-4 h-4" />
+                        <span className="text-sm">{center.district}, {center.state}</span>
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="space-y-4">
-                      <Button 
+                    {/* Contact Information */}
+                    <div className="space-y-3 pt-3 border-t border-gray-200">
+                      {/* Phone */}
+                      {center.phone && center.phone !== 'N/A' && (
+                        <div className="flex items-center gap-3">
+                          <div className="w-5 h-5 text-green-600 flex items-center justify-center">
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.797l.291 2.055a1 1 0 01-.471 1.023l-1.97 1.318a8 8 0 007.467 7.467l1.318-1.97a1 1 0 011.023-.471l2.055.291a1 1 0 01.797.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                            </svg>
+                          </div>
+                          <a href={`tel:${center.phone}`} className="text-sm font-medium text-gray-700 hover:text-green-600">
+                            {center.phone}
+                          </a>
+                        </div>
+                      )}
+
+                      {/* Email */}
+                      {center.email && center.email !== 'N/A' && (
+                        <div className="flex items-center gap-3">
+                          <div className="w-5 h-5 text-blue-600 flex items-center justify-center">
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                            </svg>
+                          </div>
+                          <a href={`mailto:${center.email}`} className="text-sm font-medium text-gray-700 hover:text-blue-600 break-all">
+                            {center.email}
+                          </a>
+                        </div>
+                      )}
+
+                      {/* Address */}
+                      <div className="flex gap-3">
+                        <div className="w-5 h-5 text-red-600 flex-shrink-0 flex items-center justify-center mt-0.5">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
+                          </svg>
+                        </div>
+                        <p className="text-sm text-gray-700 leading-relaxed">{center.address}</p>
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-gray-200"></div>
+
+                    {/* Additional Info and Button */}
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="bg-blue-50 rounded-lg p-2 text-center">
+                          <div className="text-gray-600">Rating</div>
+                          <div className="font-bold text-blue-600 flex items-center justify-center gap-1">
+                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                            {center.rating.toFixed(1)}
+                          </div>
+                        </div>
+                        <div className="bg-green-50 rounded-lg p-2 text-center">
+                          <div className="text-gray-600">Type</div>
+                          <div className="font-bold text-green-600">{center.type}</div>
+                        </div>
+                      </div>
+
+                      <Button
                         onClick={() => window.open(`https://www.google.com/maps/search/${center.name}/@${center.latitude},${center.longitude},15z`, '_blank')}
-                        className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+                        className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700"
                       >
                         <Navigation className="w-4 h-4 mr-2" />
                         Get Directions

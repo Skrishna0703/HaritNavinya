@@ -16,10 +16,12 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import mongoose from 'mongoose';
 import mandiRoutes from './routes/mandiRoutes.js';
 import soilRoutes from './routes/soilRoutes.js';
 import weatherRoutes from './routes/weatherRoutes.js';
 import disasterRoutes from './routes/disasterRoutes.js';
+import testingCenterRoutes from './routes/testingCenterRoutes.js';
 import { loadSoilDataFromCSV } from './services/csvDataParser.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -85,6 +87,7 @@ app.get('/api/health', (req, res) => {
     modules: [
       { name: 'Weather API', endpoint: '/api/weather', status: '✅' },
       { name: 'Soil Fertility Map', endpoint: '/api/soil', status: '✅' },
+      { name: 'Testing Centers (MongoDB)', endpoint: '/api/testing-centers', status: '✅' },
       { name: 'Market Data', endpoint: '/api/dashboard', status: '✅' },
       { name: 'Disaster Alerts', endpoint: '/api/disaster/alerts', status: '✅' }
     ]
@@ -97,6 +100,9 @@ app.use('/api/weather', weatherRoutes);
 
 // Soil API routes
 app.use('/api/soil', soilRoutes);
+
+// Testing Centers API routes
+app.use('/api/testing-centers', testingCenterRoutes);
 
 // Disaster Alerts routes (NDMA SACHET RSS Feed)
 app.use('/api/disaster', disasterRoutes);
@@ -207,6 +213,39 @@ app.use((error, req, res, next) => {
 
 /**
  * ============================================
+ * MONGODB CONNECTION
+ * ============================================
+ */
+
+async function connectToMongoDB() {
+  try {
+    const mongoURI = process.env.MONGODB_URI;
+    
+    if (!mongoURI) {
+      console.warn('⚠️  MONGODB_URI not set in environment variables');
+      console.warn('⚠️  MongoDB connection skipped. Testing Centers will not be available.');
+      return false;
+    }
+
+    console.log('\n🔗 Connecting to MongoDB...');
+    
+    await mongoose.connect(mongoURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+
+    console.log('✅ MongoDB connected successfully');
+    console.log('📍 Database URL:', mongoURI.substring(0, 30) + '...');
+    return true;
+  } catch (error) {
+    console.warn(`⚠️  MongoDB connection warning: ${error.message}`);
+    console.warn('⚠️  MongoDB will not be available. Testing Centers API will not work.\n');
+    return false;
+  }
+}
+
+/**
+ * ============================================
  * INITIALIZE SOIL API
  * ============================================
  */
@@ -237,6 +276,9 @@ async function initializeSoilAPI() {
 
 async function startServer() {
   try {
+    // Connect to MongoDB
+    const mongoConnected = await connectToMongoDB();
+
     // Initialize Soil API
     await initializeSoilAPI();
 
@@ -248,7 +290,7 @@ async function startServer() {
 ╠════════════════════════════════════════════════════╣
 ║   Port    : ${PORT.toString().padEnd(45)}║
 ║   Env     : ${(process.env.NODE_ENV || 'development').padEnd(45)}║
-║   Storage : CSV-based + OpenWeather API            ║
+║   MongoDB : ${(mongoConnected ? '✅ Connected' : '❌ Not Connected').padEnd(45)}║
 ╠════════════════════════════════════════════════════╣
 ║   🌤️ Weather API Endpoints:                        ║
 ║   • GET  /api/weather?lat=<lat>&lon=<lon>          ║
@@ -263,6 +305,16 @@ async function startServer() {
 ║   • GET  /api/soil/statistics/:state               ║
 ║   • POST /api/soil/filter                          ║
 ║   • GET  /api/soil/crops?state=                    ║
+║                                                    ║
+║   🏥 Testing Centers API (MongoDB):                ║
+║   • GET  /api/testing-centers                      ║
+║   • GET  /api/testing-centers/states               ║
+║   • GET  /api/testing-centers/state?state=         ║
+║   • GET  /api/testing-centers/location            ║
+║   • GET  /api/testing-centers/search?q=            ║
+║   • GET  /api/testing-centers/:id                  ║
+║   • POST /api/testing-centers                      ║
+║   • POST /api/testing-centers/bulk                 ║
 ║                                                    ║
 ║   💹 Market API Endpoints:                          ║
 ║   • GET  /api/dashboard                            ║
