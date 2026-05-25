@@ -75,7 +75,7 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
         setLoading(true);
         
         // Fetch from backend API instead of static JSON
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const apiUrl = import.meta.env.PROD ? 'https://haritnavinya.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
         const response = await fetch(`${apiUrl}/api/testing-centers`);
         
         if (!response.ok) {
