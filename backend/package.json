@@ -4,7 +4,8 @@
   "main": "src/disaster-server.js",
   "type": "module",
   "scripts": {
-    "start": "node src/server.js",
+    "verify": "node verify-data.js",
+    "start": "node verify-data.js && node src/server.js",
     "dev": "node src/server.js",
     "dev:watch": "nodemon src/server.js",
     "start:all": "npm run mandi & npm run chatbot & npm run disaster & npm run weather",

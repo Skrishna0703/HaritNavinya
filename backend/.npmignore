@@ -1,0 +1,38 @@
+# Don't ignore critical data files during npm deployment
+# These are needed for the application to function
+
+# Keep these files:
+# - soil-testing-centers.json (required for soil testing centers feature)
+# - Nutrient.csv (required for soil analysis)
+# - *.csv files (data files)
+
+# Standard ignores
+node_modules/
+.git
+.gitignore
+*.md
+.DS_Store
+.env
+.env.example
+.env.local
+.env.*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vscode/
+.idea/
+dist/
+build/
+coverage/
+.nyc_output/
+.mocha/
+test/
+tests/
+*.test.js
+*.spec.js
+.editorconfig
+
+# Keep package files and data
+!soil-testing-centers.json
+!Nutrient.csv
+!*.csv

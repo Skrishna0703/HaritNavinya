@@ -20,16 +20,25 @@ import {
  */
 export async function getAllCenters(req, res) {
   try {
+    console.log('📍 getAllCenters called - attempting to fetch centers');
     const centers = await getAllTestingCenters();
+    
+    console.log(`✅ Successfully retrieved ${centers.length} centers`);
+    
+    if (centers.length === 0) {
+      console.warn('⚠️  WARNING: Zero centers returned - this may indicate a data loading issue');
+    }
     
     res.status(200).json({
       success: true,
       data: centers,
       count: centers.length,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      source: centers.length > 0 ? 'MongoDB or JSON fallback' : 'empty'
     });
   } catch (error) {
-    console.error('Error in getAllCenters:', error.message);
+    console.error('❌ Error in getAllCenters:', error.message);
+    console.error('Stack:', error.stack);
     res.status(500).json({
       success: false,
       error: error.message,

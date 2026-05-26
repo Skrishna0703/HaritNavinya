@@ -76,21 +76,77 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
         
         // Fetch from backend API instead of static JSON
         const apiUrl = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
-        const response = await fetch(`${apiUrl}/api/testing-centers`);
         
         let rawData = [];
+        let dataLoaded = false;
         
-        if (response.ok) {
-          const result = await response.json();
-          rawData = result.data || []; // API returns { success, data, count }
-        } else {
-          console.warn('API failed, attempting to load from static JSON...');
-          // Fallback to static JSON file
-          const jsonResponse = await fetch('/soil-testing-centers.json');
-          if (jsonResponse.ok) {
-            rawData = await jsonResponse.json();
+        // Try API first with proper timeout using AbortController
+        try {
+          console.log('Attempting to fetch from API:', `${apiUrl}/api/testing-centers`);
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+          
+          const response = await fetch(`${apiUrl}/api/testing-centers`, { 
+            signal: controller.signal 
+          });
+          clearTimeout(timeoutId);
+          
+          if (response.ok) {
+            const result = await response.json();
+            rawData = Array.isArray(result) ? result : (result.data || []);
+            
+            if (rawData.length > 0) {
+              dataLoaded = true;
+              console.log('✅ Data loaded from API:', rawData.length, 'centers');
+            } else {
+              console.warn('⚠️  API returned empty data, trying JSON fallback');
+            }
           } else {
-            throw new Error('Failed to fetch from both API and static JSON');
+            console.warn('API returned error status:', response.status, response.statusText);
+          }
+        } catch (apiError: any) {
+          if (apiError.name === 'AbortError') {
+            console.warn('API fetch timeout (5s exceeded)');
+          } else {
+            console.warn('API fetch failed:', apiError.message);
+          }
+        }
+        
+        // Fallback to static JSON file if API failed or returned empty
+        if (!dataLoaded) {
+          console.warn('Attempting to load from static JSON...');
+          const jsonPaths = [
+            '/soil-testing-centers.json',
+            './soil-testing-centers.json',
+            'soil-testing-centers.json'
+          ];
+          
+          for (const jsonPath of jsonPaths) {
+            try {
+              console.log('Trying JSON path:', jsonPath);
+              const jsonResponse = await fetch(jsonPath);
+              if (jsonResponse.ok) {
+                rawData = await jsonResponse.json();
+                if (Array.isArray(rawData) && rawData.length > 0) {
+                  dataLoaded = true;
+                  console.log('✅ Data loaded from JSON:', jsonPath, rawData.length, 'centers');
+                  break;
+                } else {
+                  console.warn(`JSON from ${jsonPath} is empty or invalid`);
+                }
+              } else {
+                console.warn(`JSON response from ${jsonPath} returned status ${jsonResponse.status}`);
+              }
+            } catch (err: any) {
+              console.warn(`JSON path ${jsonPath} failed:`, err.message);
+            }
+          }
+          
+          if (!dataLoaded || rawData.length === 0) {
+            console.error('❌ Failed to load data from all sources');
+            // Set empty array to show "No centers found" message
+            setTestingCenters([]);
+            return;
           }
         }
         
@@ -164,10 +220,12 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
         });
         
         setTestingCenters(transformedData);
+        console.log('🎉 Successfully loaded', transformedData.length, 'testing centers');
       } catch (error) {
-        console.error('Error loading soil testing centers:', error);
-        // Show error message instead of silently failing
-        alert('Failed to load soil testing centers. Please try refreshing the page.');
+        console.error('❌ Error loading soil testing centers:', error);
+        // Show error message in console
+        console.error('Stack:', error instanceof Error ? error.stack : 'No stack trace');
+        // Don't show alert - just log the error
         setTestingCenters([]);
       } finally {
         setLoading(false);

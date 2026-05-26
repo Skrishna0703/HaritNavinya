@@ -6,16 +6,43 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load JSON fallback data
+// Load JSON fallback data with multiple fallback paths
 let jsonFallbackData = [];
-try {
-  const jsonPath = path.join(__dirname, '../../soil-testing-centers.json');
-  const rawData = fs.readFileSync(jsonPath, 'utf-8');
-  jsonFallbackData = JSON.parse(rawData);
-  console.log('✅ JSON fallback data loaded:', jsonFallbackData.length, 'centers');
-} catch (error) {
-  console.warn('⚠️  Could not load JSON fallback data:', error.message);
+function loadJsonFallbackData() {
+  const possiblePaths = [
+    // Path relative to this service file (src/services/)
+    path.join(__dirname, '../../soil-testing-centers.json'),
+    // Path from backend root
+    path.join(__dirname, '../../../backend/soil-testing-centers.json'),
+    // Deployed path (from app root)
+    path.join(__dirname, '../../../soil-testing-centers.json'),
+    // Alternative deployed path
+    path.join(process.cwd(), 'soil-testing-centers.json'),
+    path.join(process.cwd(), 'backend/soil-testing-centers.json'),
+  ];
+  
+  for (const jsonPath of possiblePaths) {
+    try {
+      if (fs.existsSync(jsonPath)) {
+        console.log('📂 Attempting to load JSON from:', jsonPath);
+        const rawData = fs.readFileSync(jsonPath, 'utf-8');
+        const parsed = JSON.parse(rawData);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          console.log('✅ JSON fallback data loaded successfully:', parsed.length, 'centers');
+          return parsed;
+        }
+      }
+    } catch (error) {
+      console.warn(`⚠️  Failed to load from ${jsonPath}:`, error.message);
+    }
+  }
+  
+  console.error('❌ Could not load JSON fallback data from any path');
+  console.error('   Tried paths:', possiblePaths);
+  return [];
 }
+
+jsonFallbackData = loadJsonFallbackData();
 
 /**
  * Get all soil testing centers
