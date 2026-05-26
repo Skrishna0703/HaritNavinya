@@ -78,12 +78,21 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
         const apiUrl = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
         const response = await fetch(`${apiUrl}/api/testing-centers`);
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch testing centers from API');
-        }
+        let rawData = [];
         
-        const result = await response.json();
-        const rawData = result.data || []; // API returns { success, data, count }
+        if (response.ok) {
+          const result = await response.json();
+          rawData = result.data || []; // API returns { success, data, count }
+        } else {
+          console.warn('API failed, attempting to load from static JSON...');
+          // Fallback to static JSON file
+          const jsonResponse = await fetch('/soil-testing-centers.json');
+          if (jsonResponse.ok) {
+            rawData = await jsonResponse.json();
+          } else {
+            throw new Error('Failed to fetch from both API and static JSON');
+          }
+        }
         
         // Transform the raw data to match component requirements
         const transformedData = rawData.map((center: any, index: number) => {
@@ -157,6 +166,8 @@ export function SoilTestingCenters({ onBack }: SoilTestingCentersProps) {
         setTestingCenters(transformedData);
       } catch (error) {
         console.error('Error loading soil testing centers:', error);
+        // Show error message instead of silently failing
+        alert('Failed to load soil testing centers. Please try refreshing the page.');
         setTestingCenters([]);
       } finally {
         setLoading(false);
