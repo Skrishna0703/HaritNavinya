@@ -90,16 +90,6 @@ export async function getTestingCentersByLocation(state, district) {
     return filtered.sort((a, b) => (a.district || '').localeCompare(b.district || ''));
   }
 }
-    }
-    
-    const centers = await SoilTestingCenter.find(query).sort({ name: 1 });
-    
-    return centers;
-  } catch (error) {
-    console.error('Error fetching centers by location:', error.message);
-    throw error;
-  }
-}
 
 /**
  * Search testing centers by name
