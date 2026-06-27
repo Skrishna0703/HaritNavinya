@@ -1,8 +1,7 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { io } from "socket.io-client";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -71,13 +70,48 @@ function FlyToLocation({ coords }) {
   return null;
 }
 
+// Helper to detect disaster type from alert text
+const detectDisasterType = (text: string) => {
+  const lower = (text || "").toLowerCase();
+  if (lower.includes("cyclone") || lower.includes("cyclonic")) return "cyclone";
+  if (lower.includes("flood") || lower.includes("flooding")) return "flood";
+  if (lower.includes("earthquake") || lower.includes("seismic")) return "earthquake";
+  if (lower.includes("tsunami")) return "tsunami";
+  if (lower.includes("landslide") || lower.includes("land slide")) return "landslide";
+  if (lower.includes("heat") || lower.includes("heatwave") || lower.includes("heat wave")) return "heatwave";
+  if (lower.includes("drought")) return "drought";
+  if (lower.includes("thunder") || lower.includes("lightning") || lower.includes("storm")) return "thunderstorm";
+  if (lower.includes("heavy rain") || lower.includes("rainfall") || lower.includes("rain")) return "flood";
+  if (lower.includes("cold wave") || lower.includes("cold")) return "coldwave";
+  if (lower.includes("fog") || lower.includes("dense fog")) return "fog";
+  return "other";
+};
+
+// Helper to infer severity from alert text
+const inferSeverity = (text: string) => {
+  const lower = (text || "").toLowerCase();
+  if (lower.includes("red alert") || lower.includes("extreme") || lower.includes("very heavy") || lower.includes("severe") || lower.includes("cyclone") || lower.includes("tsunami") || lower.includes("earthquake")) return "High";
+  if (lower.includes("orange alert") || lower.includes("heavy") || lower.includes("warning") || lower.includes("flood") || lower.includes("landslide")) return "Medium";
+  return "Low";
+};
+
+// States to fetch alerts for (key disaster-prone states)
+const ALERT_STATES = [
+  "maharashtra", "tamil nadu", "kerala", "assam", "uttar pradesh",
+  "gujarat", "rajasthan", "odisha", "west bengal", "karnataka",
+  "andhra pradesh", "bihar", "uttarakhand", "himachal pradesh", "delhi"
+];
+
+// Capitalize state name for display
+const capitalizeState = (s: string) => s.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+
 export default function DisasterAlerts({ onBack }) {
   const [userLocation, setUserLocation] = useState(null);
   const [mapCenter, setMapCenter] = useState(INDIA_CENTER);
   const [alerts, setAlerts] = useState([]);
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [connected, setConnected] = useState(false);
-  const socketRef = useRef(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const styleId = "disaster-alerts-pulse-style";
@@ -90,17 +124,67 @@ export default function DisasterAlerts({ onBack }) {
   }, []);
 
   useEffect(() => {
-    const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000');
-    fetch(`${API_BASE}/api/disaster/alerts`)
-      .then((r) => r.json())
-      .then((data) => {
-        const alertsWithCoords = (data.alerts || data || []).map((a) => ({
-          ...a,
-          coordinates: a.coordinates || STATE_COORDINATES[a.state || a.region] || INDIA_CENTER,
-        }));
-        setAlerts(alertsWithCoords);
-      })
-      .catch((e) => console.error("Failed to fetch alerts:", e));
+    // Use port 5000 (main server) which has the real NDMA SACHET RSS feed integration
+    const API_BASE = import.meta.env.PROD
+      ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com')
+      : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+
+    const fetchAllAlerts = async () => {
+      setLoading(true);
+      const allAlerts: any[] = [];
+      let idCounter = 1;
+
+      // Fetch alerts from multiple states in parallel
+      const fetchPromises = ALERT_STATES.map(async (state) => {
+        try {
+          const response = await fetch(`${API_BASE}/api/disaster/alerts?state=${encodeURIComponent(state)}`);
+          const data = await response.json();
+          const stateAlerts = data.alerts || [];
+          const displayState = capitalizeState(state);
+
+          return stateAlerts.map((a: any) => {
+            const combinedText = `${a.title || ""} ${a.description || ""}`;
+            const type = detectDisasterType(combinedText);
+            const severity = inferSeverity(combinedText);
+
+            return {
+              id: String(idCounter++),
+              title: a.title || "Alert",
+              description: a.description || "No description available",
+              state: displayState,
+              region: state.replace(/\s+/g, "-"),
+              type,
+              severity,
+              link: a.link || "",
+              date: a.date || a.pubDate || new Date().toISOString(),
+              timeRemaining: a.date ? new Date(a.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Recent",
+              affectedArea: displayState,
+              coordinates: STATE_COORDINATES[displayState] || INDIA_CENTER,
+              icon: type === "flood" ? "Cloud" : type === "cyclone" ? "Wind" : type === "heatwave" ? "Sun" : type === "earthquake" ? "Activity" : "AlertTriangle",
+            };
+          });
+        } catch (err) {
+          console.warn(`Failed to fetch alerts for ${state}:`, err);
+          return [];
+        }
+      });
+
+      const results = await Promise.all(fetchPromises);
+      results.forEach((stateAlerts) => allAlerts.push(...stateAlerts));
+
+      // Sort by date (newest first)
+      allAlerts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+      setAlerts(allAlerts);
+      setConnected(allAlerts.length > 0);
+      setLoading(false);
+    };
+
+    fetchAllAlerts();
+
+    // Refresh alerts every 5 minutes
+    const refreshInterval = setInterval(fetchAllAlerts, 5 * 60 * 1000);
+    return () => clearInterval(refreshInterval);
   }, []);
 
   useEffect(() => {
@@ -119,28 +203,6 @@ export default function DisasterAlerts({ onBack }) {
     }
   }, []);
 
-  useEffect(() => {
-    const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000');
-    const socket = io(API_BASE, { transports: ["websocket", "polling"] });
-    socket.on("connect", () => { setConnected(true); console.log(" Connected"); });
-    socket.on("alert:new", (newAlert) => {
-      const alertWithCoords = {
-        ...newAlert,
-        coordinates: newAlert.coordinates || STATE_COORDINATES[newAlert.state] || INDIA_CENTER,
-      };
-      setAlerts((prev) => [alertWithCoords, ...prev]);
-    });
-    socket.on("alert:update", (updatedAlert) => {
-      setAlerts((prev) => prev.map((a) => (a.id === updatedAlert.id ? { ...a, ...updatedAlert } : a)));
-    });
-    socket.on("alert:delete", (alertId) => {
-      setAlerts((prev) => prev.filter((a) => a.id !== alertId));
-    });
-    socket.on("disconnect", () => setConnected(false));
-    socketRef.current = socket;
-    return () => socket.close();
-  }, []);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-6">
       <div className="max-w-7xl mx-auto">
@@ -153,15 +215,20 @@ export default function DisasterAlerts({ onBack }) {
             <p className="text-slate-400 mt-1">India-Wide Monitoring System</p>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-lg">
-            {connected ? (
+            {loading ? (
+              <>
+                <Activity className="w-4 h-4 text-yellow-500 animate-spin" />
+                <span className="text-yellow-500 text-sm font-medium">Fetching NDMA alerts...</span>
+              </>
+            ) : connected ? (
               <>
                 <Wifi className="w-4 h-4 text-green-500 animate-pulse" />
-                <span className="text-green-500 text-sm font-medium">Connected</span>
+                <span className="text-green-500 text-sm font-medium">{alerts.length} alerts from NDMA</span>
               </>
             ) : (
               <>
                 <WifiOff className="w-4 h-4 text-red-500 animate-pulse" />
-                <span className="text-red-500 text-sm font-medium">Connecting...</span>
+                <span className="text-red-500 text-sm font-medium">No alerts available</span>
               </>
             )}
           </div>

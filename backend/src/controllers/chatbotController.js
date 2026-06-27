@@ -157,9 +157,9 @@ export const chatWithAI = async (req, res) => {
     }
 
     // Get API key from environment variables
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      console.error('GEMINI_API_KEY not found in environment variables');
+      console.error('No AI API key found in environment variables');
       return res.status(500).json({
         success: false,
         error: 'API key not configured. Contact administrator.'

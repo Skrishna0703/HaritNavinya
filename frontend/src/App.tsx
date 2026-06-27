@@ -281,7 +281,7 @@ function AppContent() {
       image: "https://images.unsplash.com/photo-1613316756460-c2624b9c2c2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwbGFudCUyMGxlYWYlMjBtYWNyb3xlbnwxfHx8fDE3NjM0Njg3MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
       route: 'plant-disease',
       clickable: true,
-      externalUrl: 'https://plant-disease-detection-mibmco47ai3t8rjztsdrt2.streamlit.app/'
+      externalUrl: 'https://plant-disease1.onrender.com/'
     },
     { 
       icon: Wheat, 

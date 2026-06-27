@@ -1,4 +1,43 @@
+import axios from 'axios';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+
+const isGroqApiKey = (apiKey) => typeof apiKey === 'string' && apiKey.startsWith('gsk_');
+
+const getProvider = (apiKey) => {
+  if (!apiKey) {
+    throw new Error('API key is required');
+  }
+
+  return isGroqApiKey(apiKey) ? 'groq' : 'gemini';
+};
+
+const callGroqChat = async (messages, apiKey) => {
+  const response = await axios.post(
+    GROQ_API_URL,
+    {
+      model: GROQ_MODEL,
+      messages,
+      temperature: 0.7,
+      max_tokens: 700
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+
+  const content = response?.data?.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new Error('No response generated from Groq model');
+  }
+
+  return content;
+};
 
 /**
  * InitializeGemini AI client for Agriculture Chatbot
@@ -61,7 +100,6 @@ If uncertain, suggest consulting local agricultural officers`;
  */
 export const generateChatbotResponse = async (userMessage, apiKey) => {
   try {
-    // Validate input
     if (!userMessage || userMessage.trim().length === 0) {
       throw new Error('User message cannot be empty');
     }
@@ -70,27 +108,32 @@ export const generateChatbotResponse = async (userMessage, apiKey) => {
       throw new Error('Message is too long. Please keep it under 10,000 characters');
     }
 
-    // Initialize Gemini client
+    const provider = getProvider(apiKey);
+
+    if (provider === 'groq') {
+      return callGroqChat([
+        { role: 'system', content: AGRICULTURE_SYSTEM_PROMPT },
+        {
+          role: 'user',
+          content: `User Question: ${userMessage}\n\nPlease provide helpful agricultural advice based on the above question.`
+        }
+      ], apiKey);
+    }
+
     const genAI = initializeGemini(apiKey);
 
-    // Try multiple models in order of preference
     const modelsToTry = ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-pro'];
     let model = null;
     let lastError = null;
 
     for (const modelName of modelsToTry) {
       try {
-        model = genAI.getGenerativeModel({ 
+        model = genAI.getGenerativeModel({
           model: modelName,
           systemInstruction: AGRICULTURE_SYSTEM_PROMPT
         });
 
-        // Create the prompt with user input
-        const fullPrompt = `User Question: ${userMessage}
-
-Please provide helpful agricultural advice based on the above question.`;
-
-        // Try to generate content
+        const fullPrompt = `User Question: ${userMessage}\n\nPlease provide helpful agricultural advice based on the above question.`;
         const result = await model.generateContent(fullPrompt);
         const response = await result.response;
         const text = response.text();
@@ -101,11 +144,9 @@ Please provide helpful agricultural advice based on the above question.`;
       } catch (error) {
         lastError = error;
         console.warn(`Model ${modelName} failed:`, error.message);
-        // Continue to next model
       }
     }
 
-    // If all models failed, throw the last error
     if (lastError) {
       throw lastError;
     }
@@ -113,18 +154,17 @@ Please provide helpful agricultural advice based on the above question.`;
     throw new Error('No response generated from AI model');
   } catch (error) {
     console.error('Chatbot Service Error:', error.message);
-    
-    // Provide helpful error messages
+
     if (error.message.includes('API key')) {
-      throw new Error('Invalid or missing Gemini API key');
+      throw new Error('Invalid or missing AI API key');
     } else if (error.message.includes('429')) {
       throw new Error('Rate limit exceeded. Please try again later');
     } else if (error.message.includes('500')) {
-      throw new Error('Gemini API service error. Please try again');
+      throw new Error('AI service error. Please try again');
     } else if (error.message.includes('not found') || error.message.includes('not supported')) {
       throw new Error('Model not available with current API key. Check your quota and billing.');
     }
-    
+
     throw error;
   }
 };
@@ -137,8 +177,8 @@ Please provide helpful agricultural advice based on the above question.`;
  * @returns {Promise<string>} AI-generated response
  */
 export const generateChatbotResponseWithHistory = async (
-  userMessage, 
-  conversationHistory = [], 
+  userMessage,
+  conversationHistory = [],
   apiKey
 ) => {
   try {
@@ -146,25 +186,37 @@ export const generateChatbotResponseWithHistory = async (
       throw new Error('User message cannot be empty');
     }
 
+    const provider = getProvider(apiKey);
+
+    if (provider === 'groq') {
+      const messages = [
+        { role: 'system', content: AGRICULTURE_SYSTEM_PROMPT },
+        ...conversationHistory.map((msg) => ({
+          role: msg.type === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        })),
+        { role: 'user', content: userMessage }
+      ];
+
+      return callGroqChat(messages, apiKey);
+    }
+
     const genAI = initializeGemini(apiKey);
-    const model = genAI.getGenerativeModel({ 
+    const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-flash',
       systemInstruction: AGRICULTURE_SYSTEM_PROMPT
     });
 
-    // Build conversation content array
-    const contents = conversationHistory.map(msg => ({
+    const contents = conversationHistory.map((msg) => ({
       role: msg.type === 'user' ? 'user' : 'model',
       parts: [{ text: msg.content }]
     }));
 
-    // Add current message
     contents.push({
       role: 'user',
       parts: [{ text: userMessage }]
     });
 
-    // Generate content with history
     const result = await model.generateContent({
       contents: contents
     });

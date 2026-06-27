@@ -76,6 +76,20 @@ function getAlertIcon(alertType: string | undefined): string {
   return "⚠️";
 }
 
+function formatStateName(state: string) {
+  if (state === 'all') return 'India';
+  return state
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+function getCoordinatesForState(state: string) {
+  if (state === 'all') return INDIA_CENTER;
+  const formatted = formatStateName(state);
+  return STATE_COORDINATES[formatted] || INDIA_CENTER;
+}
+
 function FlyToLocation({ coords }: { coords: [number, number] | null }) {
   const map = useMap();
   useEffect(() => {
@@ -116,65 +130,52 @@ export const DisasterAlerts = ({ onBack }: { onBack: () => void }) => {
         setLoading(true);
         setError(null);
         const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya-backend.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
-        
-        // Get coordinates for selected state or use India center
-        let lat = 22.9734;
-        let lon = 78.6569;
-        
-        if (selectedState !== 'all') {
-          const coords = (STATE_COORDINATES as any)[selectedState];
-          if (coords) {
-            [lat, lon] = coords;
-          }
-        }
-        
-        // Fetch weather alerts from Open-Meteo API
-        const response = await fetch(`${API_BASE}/api/weather?lat=${lat}&lon=${lon}`);
+        const stateParam = selectedState === 'all' ? 'maharashtra' : selectedState;
+        const response = await fetch(`${API_BASE}/api/disaster/alerts?state=${encodeURIComponent(stateParam)}`);
         const data = await response.json();
-        
+
         if (!mounted) return;
-        
-        const weatherAlerts = data.alerts || [];
-        const normalized = weatherAlerts.map((a: any, idx: number) => {
-          const state = selectedState === 'all' ? "India" : selectedState;
-          const coords = (STATE_COORDINATES as any)[state] || [lat, lon];
+
+        const disasterAlerts = data.alerts || [];
+        const normalized = disasterAlerts.map((a: any, idx: number) => {
+          const displayState = selectedState === 'all' ? 'India' : formatStateName(selectedState);
           return {
-            id: `weather-${idx}-${Date.now()}`,
-            state,
-            title: a.type || "Weather Alert",
-            severity: a.severity || "Yellow",
-            description: a.recommendation || "Please monitor weather conditions",
-            timeRemaining: a.time || "",
-            affectedArea: "",
-            coordinates: coords,
-            link: "",
-            date: a.time || new Date().toISOString(),
+            id: a.guid || a.link || `alert-${idx}-${Date.now()}`,
+            state: displayState,
+            title: a.title || 'Disaster Alert',
+            severity: a.severity || 'Info',
+            description: a.description || a.contentSnippet || 'No description available',
+            timeRemaining: a.date ? new Date(a.date).toLocaleString() : '',
+            affectedArea: '',
+            coordinates: getCoordinatesForState(selectedState),
+            link: a.link || '',
+            date: a.date || new Date().toISOString(),
           };
         });
-        
+
         setAlerts(normalized);
-        
+
         if (normalized.length === 0) {
-          setError("No active weather alerts");
+          setError(data.notice || 'No active disaster alerts at this time');
         }
-        
+
         setLoading(false);
       } catch (err) {
-        console.error("Failed to fetch weather alerts:", err);
+        console.error('Failed to fetch disaster alerts:', err);
         if (mounted) {
-          setError(err instanceof Error ? err.message : "Failed to fetch weather alerts");
+          setError(err instanceof Error ? err.message : 'Failed to fetch disaster alerts');
           setAlerts([]);
           setLoading(false);
         }
       }
     };
-    
+
     fetchAlerts();
-    
+
     // Auto-refresh every 5 minutes
     const interval = setInterval(fetchAlerts, 5 * 60 * 1000);
-    
-    return () => { 
+
+    return () => {
       mounted = false;
       clearInterval(interval);
     };
@@ -361,41 +362,30 @@ export const DisasterAlerts = ({ onBack }: { onBack: () => void }) => {
                 <Button
                   onClick={() => {
                     setLoading(true);
-                    const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
-                    
-                    // Get coordinates for selected state
-                    let lat = 22.9734;
-                    let lon = 78.6569;
-                    
-                    if (selectedState !== 'all') {
-                      const coords = (STATE_COORDINATES as any)[selectedState];
-                      if (coords) {
-                        [lat, lon] = coords;
-                      }
-                    }
-                    
-                    fetch(`${API_BASE}/api/weather?lat=${lat}&lon=${lon}`)
-                      .then(r => r.json())
-                      .then(data => {
-                        const weatherAlerts = data.alerts || [];
-                        const state = selectedState === 'all' ? "India" : selectedState;
-                        const normalized = weatherAlerts.map((a: any, idx: number) => ({
-                          id: `weather-${idx}-${Date.now()}`,
-                          state,
-                          title: a.type || "Weather Alert",
-                          severity: a.severity || "Yellow",
-                          description: a.recommendation || "Please monitor weather conditions",
-                          timeRemaining: a.time || "",
-                          affectedArea: "",
-                          coordinates: (STATE_COORDINATES as any)[state] || [lat, lon],
-                          link: "",
-                          date: a.time || new Date().toISOString(),
+                    const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya-backend.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+                    const stateParam = selectedState === 'all' ? 'maharashtra' : selectedState;
+
+                    fetch(`${API_BASE}/api/disaster/alerts?state=${encodeURIComponent(stateParam)}`)
+                      .then((r) => r.json())
+                      .then((data) => {
+                        const disasterAlerts = data.alerts || [];
+                        const normalized = disasterAlerts.map((a: any, idx: number) => ({
+                          id: a.guid || a.link || `alert-${idx}-${Date.now()}`,
+                          state: selectedState === 'all' ? 'India' : formatStateName(selectedState),
+                          title: a.title || 'Disaster Alert',
+                          severity: a.severity || 'Info',
+                          description: a.description || a.contentSnippet || 'No description available',
+                          timeRemaining: a.date ? new Date(a.date).toLocaleString() : '',
+                          affectedArea: '',
+                          coordinates: getCoordinatesForState(selectedState),
+                          link: a.link || '',
+                          date: a.date || new Date().toISOString(),
                         }));
                         setAlerts(normalized);
-                        setError(normalized.length === 0 ? "No active alerts" : null);
+                        setError(normalized.length === 0 ? data.notice || 'No active disaster alerts at this time' : null);
                         setLoading(false);
                       })
-                      .catch(err => {
+                      .catch((err) => {
                         setError(err.message);
                         setLoading(false);
                       });
