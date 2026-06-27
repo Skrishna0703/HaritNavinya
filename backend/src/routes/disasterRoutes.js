@@ -434,7 +434,9 @@ router.get('/alerts', async (req, res) => {
       timestamp: new Date().toISOString(),
       alertCount: 0,
       alerts: [],
-      notice: 'Weather service temporarily unavailable. Will retry automatically.'
+      notice: 'Weather service temporarily unavailable. Will retry automatically.',
+      debugError: error.message,
+      debugResponse: error.response ? { status: error.response.status, data: error.response.data } : null
     });
   }
 });
