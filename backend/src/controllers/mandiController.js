@@ -48,7 +48,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Maharashtra', Market: 'Nashik', Commodity: 'Chilli', Price: 8200, MinPrice: 7800, MaxPrice: 8900, Arrival_Date: '28/03/2026' },
   { State: 'Maharashtra', Market: 'Nashik', Commodity: 'Rice', Price: 2950, MinPrice: 2700, MaxPrice: 3200, Arrival_Date: '28/03/2026' },
   { State: 'Maharashtra', Market: 'Nashik', Commodity: 'Wheat', Price: 2180, MinPrice: 2050, MaxPrice: 2400, Arrival_Date: '28/03/2026' },
-  
+
   // Gujarat
   { State: 'Gujarat', Market: 'Ahmedabad', Commodity: 'Cotton', Price: 6200, MinPrice: 5800, MaxPrice: 6800, Arrival_Date: '28/03/2026' },
   { State: 'Gujarat', Market: 'Ahmedabad', Commodity: 'Groundnut', Price: 5500, MinPrice: 5200, MaxPrice: 5900, Arrival_Date: '28/03/2026' },
@@ -58,7 +58,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Gujarat', Market: 'Ahmedabad', Commodity: 'Potato', Price: 1400, MinPrice: 1100, MaxPrice: 1800, Arrival_Date: '28/03/2026' },
   { State: 'Gujarat', Market: 'Ahmedabad', Commodity: 'Tomato', Price: 4200, MinPrice: 3800, MaxPrice: 4800, Arrival_Date: '28/03/2026' },
   { State: 'Gujarat', Market: 'Ahmedabad', Commodity: 'Garlic', Price: 3100, MinPrice: 2900, MaxPrice: 3500, Arrival_Date: '28/03/2026' },
-  
+
   // Punjab
   { State: 'Punjab', Market: 'Ludhiana', Commodity: 'Wheat', Price: 2150, MinPrice: 2000, MaxPrice: 2350, Arrival_Date: '28/03/2026' },
   { State: 'Punjab', Market: 'Ludhiana', Commodity: 'Rice', Price: 2890, MinPrice: 2700, MaxPrice: 3100, Arrival_Date: '28/03/2026' },
@@ -68,7 +68,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Punjab', Market: 'Ludhiana', Commodity: 'Onion', Price: 2700, MinPrice: 2400, MaxPrice: 3100, Arrival_Date: '28/03/2026' },
   { State: 'Punjab', Market: 'Ludhiana', Commodity: 'Garlic', Price: 3050, MinPrice: 2850, MaxPrice: 3450, Arrival_Date: '28/03/2026' },
   { State: 'Punjab', Market: 'Ludhiana', Commodity: 'Tomato', Price: 4100, MinPrice: 3700, MaxPrice: 4600, Arrival_Date: '28/03/2026' },
-  
+
   // Uttar Pradesh
   { State: 'Uttar Pradesh', Market: 'Lucknow', Commodity: 'Potato', Price: 1200, MinPrice: 800, MaxPrice: 1600, Arrival_Date: '28/03/2026' },
   { State: 'Uttar Pradesh', Market: 'Lucknow', Commodity: 'Onion', Price: 2700, MinPrice: 2400, MaxPrice: 3100, Arrival_Date: '28/03/2026' },
@@ -78,7 +78,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Uttar Pradesh', Market: 'Lucknow', Commodity: 'Garlic', Price: 3150, MinPrice: 2950, MaxPrice: 3550, Arrival_Date: '28/03/2026' },
   { State: 'Uttar Pradesh', Market: 'Lucknow', Commodity: 'Ginger', Price: 2850, MinPrice: 2550, MaxPrice: 3250, Arrival_Date: '28/03/2026' },
   { State: 'Uttar Pradesh', Market: 'Lucknow', Commodity: 'Tomato', Price: 4300, MinPrice: 3900, MaxPrice: 5000, Arrival_Date: '28/03/2026' },
-  
+
   // Karnataka
   { State: 'Karnataka', Market: 'Bangalore', Commodity: 'Coffee', Price: 12500, MinPrice: 11800, MaxPrice: 13200, Arrival_Date: '28/03/2026' },
   { State: 'Karnataka', Market: 'Bangalore', Commodity: 'Arecanut', Price: 8900, MinPrice: 8400, MaxPrice: 9600, Arrival_Date: '28/03/2026' },
@@ -88,7 +88,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Karnataka', Market: 'Bangalore', Commodity: 'Onion', Price: 2750, MinPrice: 2450, MaxPrice: 3150, Arrival_Date: '28/03/2026' },
   { State: 'Karnataka', Market: 'Bangalore', Commodity: 'Rice', Price: 2920, MinPrice: 2700, MaxPrice: 3150, Arrival_Date: '28/03/2026' },
   { State: 'Karnataka', Market: 'Bangalore', Commodity: 'Potato', Price: 1350, MinPrice: 1050, MaxPrice: 1750, Arrival_Date: '28/03/2026' },
-  
+
   // Tamil Nadu
   { State: 'Tamil Nadu', Market: 'Chennai', Commodity: 'Rice', Price: 2950, MinPrice: 2800, MaxPrice: 3200, Arrival_Date: '28/03/2026' },
   { State: 'Tamil Nadu', Market: 'Chennai', Commodity: 'Coconut', Price: 5800, MinPrice: 5400, MaxPrice: 6300, Arrival_Date: '28/03/2026' },
@@ -98,7 +98,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Tamil Nadu', Market: 'Chennai', Commodity: 'Onion', Price: 2650, MinPrice: 2350, MaxPrice: 3050, Arrival_Date: '28/03/2026' },
   { State: 'Tamil Nadu', Market: 'Chennai', Commodity: 'Potato', Price: 1280, MinPrice: 980, MaxPrice: 1680, Arrival_Date: '28/03/2026' },
   { State: 'Tamil Nadu', Market: 'Chennai', Commodity: 'Tomato', Price: 4400, MinPrice: 4000, MaxPrice: 5100, Arrival_Date: '28/03/2026' },
-  
+
   // Bihar
   { State: 'Bihar', Market: 'Patna', Commodity: 'Rice', Price: 2880, MinPrice: 2700, MaxPrice: 3100, Arrival_Date: '28/03/2026' },
   { State: 'Bihar', Market: 'Patna', Commodity: 'Wheat', Price: 2185, MinPrice: 2050, MaxPrice: 2400, Arrival_Date: '28/03/2026' },
@@ -108,7 +108,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Bihar', Market: 'Patna', Commodity: 'Garlic', Price: 3100, MinPrice: 2900, MaxPrice: 3500, Arrival_Date: '28/03/2026' },
   { State: 'Bihar', Market: 'Patna', Commodity: 'Ginger', Price: 2820, MinPrice: 2520, MaxPrice: 3220, Arrival_Date: '28/03/2026' },
   { State: 'Bihar', Market: 'Patna', Commodity: 'Tomato', Price: 4200, MinPrice: 3800, MaxPrice: 4800, Arrival_Date: '28/03/2026' },
-  
+
   // West Bengal
   { State: 'West Bengal', Market: 'Kolkata', Commodity: 'Rice', Price: 2910, MinPrice: 2700, MaxPrice: 3150, Arrival_Date: '28/03/2026' },
   { State: 'West Bengal', Market: 'Kolkata', Commodity: 'Jute', Price: 4800, MinPrice: 4400, MaxPrice: 5300, Arrival_Date: '28/03/2026' },
@@ -118,7 +118,7 @@ const MOCK_MARKET_DATA = [
   { State: 'West Bengal', Market: 'Kolkata', Commodity: 'Garlic', Price: 3050, MinPrice: 2850, MaxPrice: 3450, Arrival_Date: '28/03/2026' },
   { State: 'West Bengal', Market: 'Kolkata', Commodity: 'Ginger', Price: 2880, MinPrice: 2580, MaxPrice: 3280, Arrival_Date: '28/03/2026' },
   { State: 'West Bengal', Market: 'Kolkata', Commodity: 'Tomato', Price: 4100, MinPrice: 3700, MaxPrice: 4600, Arrival_Date: '28/03/2026' },
-  
+
   // Rajasthan
   { State: 'Rajasthan', Market: 'Jaipur', Commodity: 'Mustard', Price: 5150, MinPrice: 4850, MaxPrice: 5750, Arrival_Date: '28/03/2026' },
   { State: 'Rajasthan', Market: 'Jaipur', Commodity: 'Chilli', Price: 8450, MinPrice: 7950, MaxPrice: 9150, Arrival_Date: '28/03/2026' },
@@ -128,7 +128,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Rajasthan', Market: 'Jaipur', Commodity: 'Onion', Price: 2700, MinPrice: 2400, MaxPrice: 3100, Arrival_Date: '28/03/2026' },
   { State: 'Rajasthan', Market: 'Jaipur', Commodity: 'Potato', Price: 1300, MinPrice: 1000, MaxPrice: 1700, Arrival_Date: '28/03/2026' },
   { State: 'Rajasthan', Market: 'Jaipur', Commodity: 'Cotton', Price: 6100, MinPrice: 5800, MaxPrice: 6600, Arrival_Date: '28/03/2026' },
-  
+
   // Telangana
   { State: 'Telangana', Market: 'Hyderabad', Commodity: 'Rice', Price: 2920, MinPrice: 2750, MaxPrice: 3150, Arrival_Date: '28/03/2026' },
   { State: 'Telangana', Market: 'Hyderabad', Commodity: 'Cotton', Price: 6280, MinPrice: 5950, MaxPrice: 6700, Arrival_Date: '28/03/2026' },
@@ -138,7 +138,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Telangana', Market: 'Hyderabad', Commodity: 'Potato', Price: 1320, MinPrice: 1020, MaxPrice: 1720, Arrival_Date: '28/03/2026' },
   { State: 'Telangana', Market: 'Hyderabad', Commodity: 'Garlic', Price: 3120, MinPrice: 2920, MaxPrice: 3520, Arrival_Date: '28/03/2026' },
   { State: 'Telangana', Market: 'Hyderabad', Commodity: 'Tomato', Price: 4350, MinPrice: 3950, MaxPrice: 5050, Arrival_Date: '28/03/2026' },
-  
+
   // Kerala
   { State: 'Kerala', Market: 'Kochi', Commodity: 'Coconut', Price: 5950, MinPrice: 5500, MaxPrice: 6450, Arrival_Date: '28/03/2026' },
   { State: 'Kerala', Market: 'Kochi', Commodity: 'Pepper', Price: 11500, MinPrice: 11000, MaxPrice: 12300, Arrival_Date: '28/03/2026' },
@@ -148,7 +148,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Kerala', Market: 'Kochi', Commodity: 'Onion', Price: 2800, MinPrice: 2500, MaxPrice: 3200, Arrival_Date: '28/03/2026' },
   { State: 'Kerala', Market: 'Kochi', Commodity: 'Potato', Price: 1450, MinPrice: 1150, MaxPrice: 1850, Arrival_Date: '28/03/2026' },
   { State: 'Kerala', Market: 'Kochi', Commodity: 'Garlic', Price: 3200, MinPrice: 3000, MaxPrice: 3600, Arrival_Date: '28/03/2026' },
-  
+
   // Andhra Pradesh
   { State: 'Andhra Pradesh', Market: 'Visakhapatnam', Commodity: 'Rice', Price: 2900, MinPrice: 2700, MaxPrice: 3100, Arrival_Date: '28/03/2026' },
   { State: 'Andhra Pradesh', Market: 'Visakhapatnam', Commodity: 'Groundnut', Price: 5400, MinPrice: 5100, MaxPrice: 5800, Arrival_Date: '28/03/2026' },
@@ -158,7 +158,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Andhra Pradesh', Market: 'Visakhapatnam', Commodity: 'Chilli', Price: 8350, MinPrice: 7850, MaxPrice: 9050, Arrival_Date: '28/03/2026' },
   { State: 'Andhra Pradesh', Market: 'Visakhapatnam', Commodity: 'Garlic', Price: 3130, MinPrice: 2930, MaxPrice: 3530, Arrival_Date: '28/03/2026' },
   { State: 'Andhra Pradesh', Market: 'Visakhapatnam', Commodity: 'Maize', Price: 1880, MinPrice: 1750, MaxPrice: 2050, Arrival_Date: '28/03/2026' },
-  
+
   // Arunachal Pradesh
   { State: 'Arunachal Pradesh', Market: 'Itanagar', Commodity: 'Rice', Price: 3100, MinPrice: 2900, MaxPrice: 3400, Arrival_Date: '28/03/2026' },
   { State: 'Arunachal Pradesh', Market: 'Itanagar', Commodity: 'Onion', Price: 3050, MinPrice: 2750, MaxPrice: 3450, Arrival_Date: '28/03/2026' },
@@ -168,7 +168,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Arunachal Pradesh', Market: 'Itanagar', Commodity: 'Tomato', Price: 4600, MinPrice: 4200, MaxPrice: 5200, Arrival_Date: '28/03/2026' },
   { State: 'Arunachal Pradesh', Market: 'Itanagar', Commodity: 'Maize', Price: 2050, MinPrice: 1850, MaxPrice: 2350, Arrival_Date: '28/03/2026' },
   { State: 'Arunachal Pradesh', Market: 'Itanagar', Commodity: 'Mustard', Price: 5400, MinPrice: 5100, MaxPrice: 5900, Arrival_Date: '28/03/2026' },
-  
+
   // Assam
   { State: 'Assam', Market: 'Guwahati', Commodity: 'Rice', Price: 2850, MinPrice: 2650, MaxPrice: 3050, Arrival_Date: '28/03/2026' },
   { State: 'Assam', Market: 'Guwahati', Commodity: 'Tea', Price: 22500, MinPrice: 21000, MaxPrice: 24000, Arrival_Date: '28/03/2026' },
@@ -178,7 +178,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Assam', Market: 'Guwahati', Commodity: 'Garlic', Price: 2950, MinPrice: 2750, MaxPrice: 3350, Arrival_Date: '28/03/2026' },
   { State: 'Assam', Market: 'Guwahati', Commodity: 'Tomato', Price: 3950, MinPrice: 3550, MaxPrice: 4550, Arrival_Date: '28/03/2026' },
   { State: 'Assam', Market: 'Guwahati', Commodity: 'Maize', Price: 1750, MinPrice: 1550, MaxPrice: 1950, Arrival_Date: '28/03/2026' },
-  
+
   // Chhattisgarh
   { State: 'Chhattisgarh', Market: 'Raipur', Commodity: 'Rice', Price: 2800, MinPrice: 2600, MaxPrice: 3000, Arrival_Date: '28/03/2026' },
   { State: 'Chhattisgarh', Market: 'Raipur', Commodity: 'Maize', Price: 1900, MinPrice: 1750, MaxPrice: 2100, Arrival_Date: '28/03/2026' },
@@ -188,7 +188,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Chhattisgarh', Market: 'Raipur', Commodity: 'Garlic', Price: 3050, MinPrice: 2850, MaxPrice: 3450, Arrival_Date: '28/03/2026' },
   { State: 'Chhattisgarh', Market: 'Raipur', Commodity: 'Ginger', Price: 2750, MinPrice: 2450, MaxPrice: 3150, Arrival_Date: '28/03/2026' },
   { State: 'Chhattisgarh', Market: 'Raipur', Commodity: 'Tomato', Price: 4050, MinPrice: 3650, MaxPrice: 4650, Arrival_Date: '28/03/2026' },
-  
+
   // Goa
   { State: 'Goa', Market: 'Panaji', Commodity: 'Coconut', Price: 5700, MinPrice: 5300, MaxPrice: 6200, Arrival_Date: '28/03/2026' },
   { State: 'Goa', Market: 'Panaji', Commodity: 'Cashew', Price: 24000, MinPrice: 22000, MaxPrice: 26000, Arrival_Date: '28/03/2026' },
@@ -198,7 +198,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Goa', Market: 'Panaji', Commodity: 'Tomato', Price: 4200, MinPrice: 3800, MaxPrice: 4800, Arrival_Date: '28/03/2026' },
   { State: 'Goa', Market: 'Panaji', Commodity: 'Garlic', Price: 3150, MinPrice: 2950, MaxPrice: 3550, Arrival_Date: '28/03/2026' },
   { State: 'Goa', Market: 'Panaji', Commodity: 'Arecanut', Price: 8700, MinPrice: 8200, MaxPrice: 9400, Arrival_Date: '28/03/2026' },
-  
+
   // Haryana
   { State: 'Haryana', Market: 'Hisar', Commodity: 'Wheat', Price: 2220, MinPrice: 2080, MaxPrice: 2450, Arrival_Date: '28/03/2026' },
   { State: 'Haryana', Market: 'Hisar', Commodity: 'Rice', Price: 2950, MinPrice: 2750, MaxPrice: 3200, Arrival_Date: '28/03/2026' },
@@ -208,7 +208,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Haryana', Market: 'Hisar', Commodity: 'Garlic', Price: 3100, MinPrice: 2900, MaxPrice: 3500, Arrival_Date: '28/03/2026' },
   { State: 'Haryana', Market: 'Hisar', Commodity: 'Ginger', Price: 2850, MinPrice: 2550, MaxPrice: 3250, Arrival_Date: '28/03/2026' },
   { State: 'Haryana', Market: 'Hisar', Commodity: 'Tomato', Price: 4150, MinPrice: 3750, MaxPrice: 4750, Arrival_Date: '28/03/2026' },
-  
+
   // Himachal Pradesh
   { State: 'Himachal Pradesh', Market: 'Shimla', Commodity: 'Apple', Price: 8200, MinPrice: 7800, MaxPrice: 8900, Arrival_Date: '28/03/2026' },
   { State: 'Himachal Pradesh', Market: 'Shimla', Commodity: 'Potato', Price: 1450, MinPrice: 1150, MaxPrice: 1850, Arrival_Date: '28/03/2026' },
@@ -218,7 +218,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Himachal Pradesh', Market: 'Shimla', Commodity: 'Ginger', Price: 3100, MinPrice: 2800, MaxPrice: 3500, Arrival_Date: '28/03/2026' },
   { State: 'Himachal Pradesh', Market: 'Shimla', Commodity: 'Wheat', Price: 2200, MinPrice: 2050, MaxPrice: 2400, Arrival_Date: '28/03/2026' },
   { State: 'Himachal Pradesh', Market: 'Shimla', Commodity: 'Maize', Price: 1950, MinPrice: 1800, MaxPrice: 2150, Arrival_Date: '28/03/2026' },
-  
+
   // Jharkhand
   { State: 'Jharkhand', Market: 'Ranchi', Commodity: 'Rice', Price: 2870, MinPrice: 2650, MaxPrice: 3100, Arrival_Date: '28/03/2026' },
   { State: 'Jharkhand', Market: 'Ranchi', Commodity: 'Maize', Price: 1850, MinPrice: 1700, MaxPrice: 2050, Arrival_Date: '28/03/2026' },
@@ -228,7 +228,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Jharkhand', Market: 'Ranchi', Commodity: 'Ginger', Price: 2750, MinPrice: 2450, MaxPrice: 3150, Arrival_Date: '28/03/2026' },
   { State: 'Jharkhand', Market: 'Ranchi', Commodity: 'Tomato', Price: 4100, MinPrice: 3700, MaxPrice: 4700, Arrival_Date: '28/03/2026' },
   { State: 'Jharkhand', Market: 'Ranchi', Commodity: 'Wheat', Price: 2150, MinPrice: 2000, MaxPrice: 2350, Arrival_Date: '28/03/2026' },
-  
+
   // Madhya Pradesh
   { State: 'Madhya Pradesh', Market: 'Indore', Commodity: 'Soybean', Price: 5900, MinPrice: 5500, MaxPrice: 6400, Arrival_Date: '28/03/2026' },
   { State: 'Madhya Pradesh', Market: 'Indore', Commodity: 'Gram', Price: 5700, MinPrice: 5300, MaxPrice: 6200, Arrival_Date: '28/03/2026' },
@@ -238,7 +238,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Madhya Pradesh', Market: 'Indore', Commodity: 'Tomato', Price: 4150, MinPrice: 3750, MaxPrice: 4750, Arrival_Date: '28/03/2026' },
   { State: 'Madhya Pradesh', Market: 'Indore', Commodity: 'Garlic', Price: 3100, MinPrice: 2900, MaxPrice: 3500, Arrival_Date: '28/03/2026' },
   { State: 'Madhya Pradesh', Market: 'Indore', Commodity: 'Chilli', Price: 8250, MinPrice: 7750, MaxPrice: 8950, Arrival_Date: '28/03/2026' },
-  
+
   // Manipur
   { State: 'Manipur', Market: 'Imphal', Commodity: 'Rice', Price: 3050, MinPrice: 2850, MaxPrice: 3350, Arrival_Date: '28/03/2026' },
   { State: 'Manipur', Market: 'Imphal', Commodity: 'Onion', Price: 2900, MinPrice: 2600, MaxPrice: 3300, Arrival_Date: '28/03/2026' },
@@ -248,7 +248,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Manipur', Market: 'Imphal', Commodity: 'Ginger', Price: 3000, MinPrice: 2700, MaxPrice: 3400, Arrival_Date: '28/03/2026' },
   { State: 'Manipur', Market: 'Imphal', Commodity: 'Cabbage', Price: 1850, MinPrice: 1550, MaxPrice: 2250, Arrival_Date: '28/03/2026' },
   { State: 'Manipur', Market: 'Imphal', Commodity: 'Carrot', Price: 2100, MinPrice: 1800, MaxPrice: 2500, Arrival_Date: '28/03/2026' },
-  
+
   // Meghalaya
   { State: 'Meghalaya', Market: 'Shillong', Commodity: 'Rice', Price: 3150, MinPrice: 2950, MaxPrice: 3450, Arrival_Date: '28/03/2026' },
   { State: 'Meghalaya', Market: 'Shillong', Commodity: 'Potato', Price: 1550, MinPrice: 1250, MaxPrice: 1950, Arrival_Date: '28/03/2026' },
@@ -258,7 +258,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Meghalaya', Market: 'Shillong', Commodity: 'Tomato', Price: 4500, MinPrice: 4100, MaxPrice: 5100, Arrival_Date: '28/03/2026' },
   { State: 'Meghalaya', Market: 'Shillong', Commodity: 'Ginger', Price: 3200, MinPrice: 2900, MaxPrice: 3600, Arrival_Date: '28/03/2026' },
   { State: 'Meghalaya', Market: 'Shillong', Commodity: 'Garlic', Price: 3300, MinPrice: 3100, MaxPrice: 3700, Arrival_Date: '28/03/2026' },
-  
+
   // Mizoram
   { State: 'Mizoram', Market: 'Aizawl', Commodity: 'Rice', Price: 3200, MinPrice: 3000, MaxPrice: 3500, Arrival_Date: '28/03/2026' },
   { State: 'Mizoram', Market: 'Aizawl', Commodity: 'Onion', Price: 3050, MinPrice: 2750, MaxPrice: 3450, Arrival_Date: '28/03/2026' },
@@ -268,7 +268,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Mizoram', Market: 'Aizawl', Commodity: 'Garlic', Price: 3400, MinPrice: 3200, MaxPrice: 3800, Arrival_Date: '28/03/2026' },
   { State: 'Mizoram', Market: 'Aizawl', Commodity: 'Ginger', Price: 3250, MinPrice: 2950, MaxPrice: 3650, Arrival_Date: '28/03/2026' },
   { State: 'Mizoram', Market: 'Aizawl', Commodity: 'Carrot', Price: 2250, MinPrice: 1950, MaxPrice: 2650, Arrival_Date: '28/03/2026' },
-  
+
   // Nagaland
   { State: 'Nagaland', Market: 'Kohima', Commodity: 'Rice', Price: 3250, MinPrice: 3050, MaxPrice: 3550, Arrival_Date: '28/03/2026' },
   { State: 'Nagaland', Market: 'Kohima', Commodity: 'Onion', Price: 3100, MinPrice: 2800, MaxPrice: 3500, Arrival_Date: '28/03/2026' },
@@ -278,7 +278,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Nagaland', Market: 'Kohima', Commodity: 'Garlic', Price: 3450, MinPrice: 3250, MaxPrice: 3850, Arrival_Date: '28/03/2026' },
   { State: 'Nagaland', Market: 'Kohima', Commodity: 'Cabbage', Price: 2000, MinPrice: 1700, MaxPrice: 2400, Arrival_Date: '28/03/2026' },
   { State: 'Nagaland', Market: 'Kohima', Commodity: 'Carrot', Price: 2300, MinPrice: 2000, MaxPrice: 2700, Arrival_Date: '28/03/2026' },
-  
+
   // Odisha
   { State: 'Odisha', Market: 'Bhubaneswar', Commodity: 'Rice', Price: 2880, MinPrice: 2650, MaxPrice: 3100, Arrival_Date: '28/03/2026' },
   { State: 'Odisha', Market: 'Bhubaneswar', Commodity: 'Onion', Price: 2680, MinPrice: 2380, MaxPrice: 3080, Arrival_Date: '28/03/2026' },
@@ -288,7 +288,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Odisha', Market: 'Bhubaneswar', Commodity: 'Garlic', Price: 3050, MinPrice: 2850, MaxPrice: 3450, Arrival_Date: '28/03/2026' },
   { State: 'Odisha', Market: 'Bhubaneswar', Commodity: 'Ginger', Price: 2750, MinPrice: 2450, MaxPrice: 3150, Arrival_Date: '28/03/2026' },
   { State: 'Odisha', Market: 'Bhubaneswar', Commodity: 'Mustard', Price: 5100, MinPrice: 4800, MaxPrice: 5700, Arrival_Date: '28/03/2026' },
-  
+
   // Sikkim
   { State: 'Sikkim', Market: 'Gangtok', Commodity: 'Cardamom', Price: 15800, MinPrice: 15100, MaxPrice: 16700, Arrival_Date: '28/03/2026' },
   { State: 'Sikkim', Market: 'Gangtok', Commodity: 'Onion', Price: 3200, MinPrice: 2900, MaxPrice: 3600, Arrival_Date: '28/03/2026' },
@@ -298,7 +298,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Sikkim', Market: 'Gangtok', Commodity: 'Tomato', Price: 4700, MinPrice: 4300, MaxPrice: 5300, Arrival_Date: '28/03/2026' },
   { State: 'Sikkim', Market: 'Gangtok', Commodity: 'Rice', Price: 3300, MinPrice: 3100, MaxPrice: 3600, Arrival_Date: '28/03/2026' },
   { State: 'Sikkim', Market: 'Gangtok', Commodity: 'Apple', Price: 8500, MinPrice: 8100, MaxPrice: 9200, Arrival_Date: '28/03/2026' },
-  
+
   // Tripura
   { State: 'Tripura', Market: 'Agartala', Commodity: 'Rice', Price: 2920, MinPrice: 2700, MaxPrice: 3150, Arrival_Date: '28/03/2026' },
   { State: 'Tripura', Market: 'Agartala', Commodity: 'Onion', Price: 2750, MinPrice: 2450, MaxPrice: 3150, Arrival_Date: '28/03/2026' },
@@ -308,7 +308,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Tripura', Market: 'Agartala', Commodity: 'Garlic', Price: 3050, MinPrice: 2850, MaxPrice: 3450, Arrival_Date: '28/03/2026' },
   { State: 'Tripura', Market: 'Agartala', Commodity: 'Rubber', Price: 17800, MinPrice: 17000, MaxPrice: 18800, Arrival_Date: '28/03/2026' },
   { State: 'Tripura', Market: 'Agartala', Commodity: 'Coconut', Price: 5600, MinPrice: 5200, MaxPrice: 6100, Arrival_Date: '28/03/2026' },
-  
+
   // Uttarakhand
   { State: 'Uttarakhand', Market: 'Dehradun', Commodity: 'Rice', Price: 3000, MinPrice: 2800, MaxPrice: 3300, Arrival_Date: '28/03/2026' },
   { State: 'Uttarakhand', Market: 'Dehradun', Commodity: 'Wheat', Price: 2250, MinPrice: 2100, MaxPrice: 2500, Arrival_Date: '28/03/2026' },
@@ -318,7 +318,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Uttarakhand', Market: 'Dehradun', Commodity: 'Tomato', Price: 4350, MinPrice: 3950, MaxPrice: 4950, Arrival_Date: '28/03/2026' },
   { State: 'Uttarakhand', Market: 'Dehradun', Commodity: 'Garlic', Price: 3200, MinPrice: 3000, MaxPrice: 3600, Arrival_Date: '28/03/2026' },
   { State: 'Uttarakhand', Market: 'Dehradun', Commodity: 'Ginger', Price: 3100, MinPrice: 2800, MaxPrice: 3500, Arrival_Date: '28/03/2026' },
-  
+
   // Delhi
   { State: 'Delhi', Market: 'Delhi', Commodity: 'Wheat', Price: 2220, MinPrice: 2080, MaxPrice: 2450, Arrival_Date: '28/03/2026' },
   { State: 'Delhi', Market: 'Delhi', Commodity: 'Rice', Price: 2980, MinPrice: 2760, MaxPrice: 3210, Arrival_Date: '28/03/2026' },
@@ -328,7 +328,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Delhi', Market: 'Delhi', Commodity: 'Garlic', Price: 3200, MinPrice: 3000, MaxPrice: 3600, Arrival_Date: '28/03/2026' },
   { State: 'Delhi', Market: 'Delhi', Commodity: 'Ginger', Price: 2950, MinPrice: 2650, MaxPrice: 3350, Arrival_Date: '28/03/2026' },
   { State: 'Delhi', Market: 'Delhi', Commodity: 'Maize', Price: 1920, MinPrice: 1750, MaxPrice: 2150, Arrival_Date: '28/03/2026' },
-  
+
   // Chandigarh
   { State: 'Chandigarh', Market: 'Chandigarh', Commodity: 'Wheat', Price: 2200, MinPrice: 2050, MaxPrice: 2400, Arrival_Date: '28/03/2026' },
   { State: 'Chandigarh', Market: 'Chandigarh', Commodity: 'Rice', Price: 2930, MinPrice: 2710, MaxPrice: 3160, Arrival_Date: '28/03/2026' },
@@ -338,7 +338,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Chandigarh', Market: 'Chandigarh', Commodity: 'Garlic', Price: 3120, MinPrice: 2920, MaxPrice: 3520, Arrival_Date: '28/03/2026' },
   { State: 'Chandigarh', Market: 'Chandigarh', Commodity: 'Ginger', Price: 2900, MinPrice: 2600, MaxPrice: 3300, Arrival_Date: '28/03/2026' },
   { State: 'Chandigarh', Market: 'Chandigarh', Commodity: 'Maize', Price: 1900, MinPrice: 1750, MaxPrice: 2100, Arrival_Date: '28/03/2026' },
-  
+
   // Puducherry
   { State: 'Puducherry', Market: 'Puducherry', Commodity: 'Rice', Price: 2960, MinPrice: 2740, MaxPrice: 3190, Arrival_Date: '28/03/2026' },
   { State: 'Puducherry', Market: 'Puducherry', Commodity: 'Coconut', Price: 5750, MinPrice: 5350, MaxPrice: 6250, Arrival_Date: '28/03/2026' },
@@ -348,7 +348,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Puducherry', Market: 'Puducherry', Commodity: 'Pepper', Price: 11200, MinPrice: 10700, MaxPrice: 12000, Arrival_Date: '28/03/2026' },
   { State: 'Puducherry', Market: 'Puducherry', Commodity: 'Garlic', Price: 3080, MinPrice: 2880, MaxPrice: 3480, Arrival_Date: '28/03/2026' },
   { State: 'Puducherry', Market: 'Puducherry', Commodity: 'Ginger', Price: 2820, MinPrice: 2520, MaxPrice: 3220, Arrival_Date: '28/03/2026' },
-  
+
   // Ladakh
   { State: 'Ladakh', Market: 'Leh', Commodity: 'Potato', Price: 2000, MinPrice: 1800, MaxPrice: 2400, Arrival_Date: '28/03/2026' },
   { State: 'Ladakh', Market: 'Leh', Commodity: 'Onion', Price: 3500, MinPrice: 3200, MaxPrice: 3900, Arrival_Date: '28/03/2026' },
@@ -358,7 +358,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Ladakh', Market: 'Leh', Commodity: 'Apple', Price: 9000, MinPrice: 8500, MaxPrice: 9800, Arrival_Date: '28/03/2026' },
   { State: 'Ladakh', Market: 'Leh', Commodity: 'Apricot', Price: 10500, MinPrice: 10000, MaxPrice: 11500, Arrival_Date: '28/03/2026' },
   { State: 'Ladakh', Market: 'Leh', Commodity: 'Wheat', Price: 2300, MinPrice: 2150, MaxPrice: 2550, Arrival_Date: '28/03/2026' },
-  
+
   // Andaman and Nicobar Islands
   { State: 'Andaman and Nicobar Islands', Market: 'Port Blair', Commodity: 'Coconut', Price: 6200, MinPrice: 5800, MaxPrice: 6800, Arrival_Date: '28/03/2026' },
   { State: 'Andaman and Nicobar Islands', Market: 'Port Blair', Commodity: 'Rice', Price: 3200, MinPrice: 3000, MaxPrice: 3500, Arrival_Date: '28/03/2026' },
@@ -368,7 +368,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Andaman and Nicobar Islands', Market: 'Port Blair', Commodity: 'Garlic', Price: 3600, MinPrice: 3400, MaxPrice: 4000, Arrival_Date: '28/03/2026' },
   { State: 'Andaman and Nicobar Islands', Market: 'Port Blair', Commodity: 'Fish', Price: 8000, MinPrice: 7500, MaxPrice: 8800, Arrival_Date: '28/03/2026' },
   { State: 'Andaman and Nicobar Islands', Market: 'Port Blair', Commodity: 'Banana', Price: 3500, MinPrice: 3200, MaxPrice: 3900, Arrival_Date: '28/03/2026' },
-  
+
   // Dadra and Nagar Haveli
   { State: 'Dadra and Nagar Haveli', Market: 'Silvassa', Commodity: 'Rice', Price: 2850, MinPrice: 2650, MaxPrice: 3050, Arrival_Date: '28/03/2026' },
   { State: 'Dadra and Nagar Haveli', Market: 'Silvassa', Commodity: 'Onion', Price: 2600, MinPrice: 2300, MaxPrice: 3000, Arrival_Date: '28/03/2026' },
@@ -378,7 +378,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Dadra and Nagar Haveli', Market: 'Silvassa', Commodity: 'Maize', Price: 1850, MinPrice: 1700, MaxPrice: 2050, Arrival_Date: '28/03/2026' },
   { State: 'Dadra and Nagar Haveli', Market: 'Silvassa', Commodity: 'Garlic', Price: 3000, MinPrice: 2800, MaxPrice: 3400, Arrival_Date: '28/03/2026' },
   { State: 'Dadra and Nagar Haveli', Market: 'Silvassa', Commodity: 'Ginger', Price: 2700, MinPrice: 2400, MaxPrice: 3100, Arrival_Date: '28/03/2026' },
-  
+
   // Daman and Diu
   { State: 'Daman and Diu', Market: 'Daman', Commodity: 'Rice', Price: 2900, MinPrice: 2700, MaxPrice: 3100, Arrival_Date: '28/03/2026' },
   { State: 'Daman and Diu', Market: 'Daman', Commodity: 'Onion', Price: 2650, MinPrice: 2350, MaxPrice: 3050, Arrival_Date: '28/03/2026' },
@@ -388,7 +388,7 @@ const MOCK_MARKET_DATA = [
   { State: 'Daman and Diu', Market: 'Daman', Commodity: 'Garlic', Price: 3100, MinPrice: 2900, MaxPrice: 3500, Arrival_Date: '28/03/2026' },
   { State: 'Daman and Diu', Market: 'Daman', Commodity: 'Coconut', Price: 5500, MinPrice: 5100, MaxPrice: 6000, Arrival_Date: '28/03/2026' },
   { State: 'Daman and Diu', Market: 'Daman', Commodity: 'Ginger', Price: 2800, MinPrice: 2500, MaxPrice: 3200, Arrival_Date: '28/03/2026' },
-  
+
   // Lakshadweep
   { State: 'Lakshadweep', Market: 'Kavarati', Commodity: 'Coconut', Price: 6500, MinPrice: 6100, MaxPrice: 7000, Arrival_Date: '28/03/2026' },
   { State: 'Lakshadweep', Market: 'Kavarati', Commodity: 'Rice', Price: 3300, MinPrice: 3100, MaxPrice: 3600, Arrival_Date: '28/03/2026' },
@@ -414,7 +414,7 @@ async function fetchAgmarknetData(filters = {}) {
 
     // Build cache key from filters
     const cacheKey = JSON.stringify(filters);
-    
+
     // Check cache first
     const cachedData = getCacheIfValid(apiCache, cacheKey);
     if (cachedData) {
@@ -431,7 +431,7 @@ async function fetchAgmarknetData(filters = {}) {
       ...filters
     };
 
-    const response = await axios.get(AGMARKNET_API_BASE, { 
+    const response = await axios.get(AGMARKNET_API_BASE, {
       params,
       timeout: 30000 // 30 second timeout for external API
     });
@@ -574,11 +574,11 @@ export async function getDashboard(req, res) {
     });
   } catch (error) {
     console.error('❌ Dashboard error:', error.message);
-    
+
     // Fallback to mock data on API error
     console.log('📦 Using mock data as fallback...');
     const { state = 'Maharashtra', commodity = 'All' } = req.query;
-    
+
     let mockData = MOCK_MARKET_DATA.filter(record => {
       const stateMatches = !state || record.State.toLowerCase() === state.toLowerCase();
       const commodityMatches = commodity === 'All' || !commodity || record.Commodity.toLowerCase() === commodity.toLowerCase();
@@ -620,7 +620,7 @@ export async function getTrends(req, res) {
     // Return mock price trend data
     const trendData = [];
     const basePrice = Math.floor(Math.random() * 3000) + 1000;
-    
+
     for (let i = days; i > 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
@@ -655,7 +655,7 @@ export async function getTrends(req, res) {
 export async function getAvailableStates(req, res) {
   try {
     console.log('🌍 Fetching available states...');
-    
+
     // Return all Indian states and union territories
     res.status(200).json({
       success: true,
@@ -684,7 +684,7 @@ export async function getAvailableCommodities(req, res) {
     // Fetch all data and filter in JavaScript
     const filters = state ? { 'filters[state]': state } : {};
     const rawData = await fetchAgmarknetData(filters);
-    
+
     // Extract unique commodities
     const commodities = [...new Set(rawData.map(r => r.Commodity).filter(Boolean))];
 
@@ -698,13 +698,13 @@ export async function getAvailableCommodities(req, res) {
     });
   } catch (error) {
     console.error('❌ Commodities fetch error:', error.message);
-    
+
     // Fallback to mock data
     let filtered = MOCK_MARKET_DATA;
     if (state) {
       filtered = filtered.filter(record => record.State && record.State.toLowerCase() === state.toLowerCase());
     }
-    
+
     const commodities = [...new Set(filtered.map(record => record.Commodity).filter(Boolean))];
 
     res.status(200).json({
@@ -786,7 +786,7 @@ export async function getDebug(req, res) {
     };
 
     console.log('📡 Calling Agmarknet API with params:', params);
-    const response = await axios.get(AGMARKNET_API_BASE, { 
+    const response = await axios.get(AGMARKNET_API_BASE, {
       params,
       timeout: 45000 // 45 second timeout for debug - API can be slow
     });
@@ -848,7 +848,7 @@ export async function getDebug(req, res) {
 
   } catch (error) {
     console.error('❌ Debug endpoint error:', error.message);
-    
+
     const errorDetails = {
       message: error.message,
       code: error.code,

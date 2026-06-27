@@ -129,7 +129,7 @@ export const DisasterAlerts = ({ onBack }: { onBack: () => void }) => {
       try {
         setLoading(true);
         setError(null);
-        const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya-backend.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+        const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
         const stateParam = selectedState === 'all' ? 'maharashtra' : selectedState;
         const response = await fetch(`${API_BASE}/api/disaster/alerts?state=${encodeURIComponent(stateParam)}`);
         const data = await response.json();
@@ -362,7 +362,7 @@ export const DisasterAlerts = ({ onBack }: { onBack: () => void }) => {
                 <Button
                   onClick={() => {
                     setLoading(true);
-                    const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya-backend.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+                    const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
                     const stateParam = selectedState === 'all' ? 'maharashtra' : selectedState;
 
                     fetch(`${API_BASE}/api/disaster/alerts?state=${encodeURIComponent(stateParam)}`)

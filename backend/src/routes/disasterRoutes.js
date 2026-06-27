@@ -364,7 +364,7 @@ router.get('/alerts', async (req, res) => {
         timezone: 'Asia/Kolkata',
         forecast_days: 3
       },
-      timeout: 10000
+      timeout: 20000
     });
 
     const weatherData = response.data;
@@ -394,6 +394,38 @@ router.get('/alerts', async (req, res) => {
 
   } catch (error) {
     console.error('[DISASTER] Open-Meteo Error:', error.message);
+
+    // Retry once with a fresh request (handles cold-start latency on free hosting)
+    try {
+      const stateInfo = STATE_DATA[req.query.state?.toLowerCase() || 'maharashtra'];
+      const retryResponse = await axios.get('https://api.open-meteo.com/v1/forecast', {
+        params: {
+          latitude: stateInfo.lat,
+          longitude: stateInfo.lon,
+          current: 'temperature_2m,relative_humidity_2m,rain,weather_code,wind_speed_10m,wind_gusts_10m',
+          hourly: 'temperature_2m,rain,weather_code,wind_gusts_10m',
+          daily: 'temperature_2m_max,temperature_2m_min,rain_sum,wind_gusts_10m_max,weather_code',
+          timezone: 'Asia/Kolkata',
+          forecast_days: 3
+        },
+        timeout: 15000
+      });
+      const state = req.query.state?.toLowerCase() || 'maharashtra';
+      const retryAlerts = generateAlertsFromWeather(retryResponse.data, state, stateInfo);
+      alertCache[state] = { alerts: retryAlerts, timestamp: Date.now() };
+      console.log(`[DISASTER] Retry succeeded: ${retryAlerts.length} alerts for ${state}`);
+      return res.json({
+        success: true,
+        state,
+        source: 'Open-Meteo (retry)',
+        location: stateInfo.capital,
+        timestamp: new Date().toISOString(),
+        alertCount: retryAlerts.length,
+        alerts: retryAlerts
+      });
+    } catch (retryError) {
+      console.error('[DISASTER] Retry also failed:', retryError.message);
+    }
 
     res.status(200).json({
       success: true,

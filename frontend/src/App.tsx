@@ -214,7 +214,7 @@ function AppContent() {
         setMarketLoading(true);
         const states = ['Maharashtra', 'Karnataka', 'Tamil Nadu', 'Uttar Pradesh', 'Punjab', 'Gujarat'];
         setMarketState(states.join(' • '));
-        const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya-backend.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+        const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
         
         let allPrices: string[] = [];
         

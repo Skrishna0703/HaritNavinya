@@ -2,7 +2,7 @@ services:
   - type: static_site
     name: haritnavinya-frontend
     plan: free
-    staticPublishPath: frontend/dist
+    staticPublishPath: frontend/build
     buildCommand: cd frontend && npm install --legacy-peer-deps && npm run build
     autoDeployOnPush: true
     envVars:
@@ -39,12 +39,14 @@ services:
           name: haritnavinya-db
           property: connectionString
       - key: CORS_ORIGIN
-        value: "https://haritnavinya-frontend.onrender.com,https://yourdomain.com,http://localhost:3000,http://localhost:5173"
+        value: "https://haritnavinya-frontend.onrender.com,https://haritnavinya.onrender.com,http://localhost:3000,http://localhost:5173"
       - key: LOG_LEVEL
         value: info
       - key: GEMINI_API_KEY
         sync: false
       - key: AGMARKNET_API_KEY
+        value: "579b464db66ec23bdd0000017954c766c08b48836cca314f2ac28314"
+      - key: API_KEY
         value: "579b464db66ec23bdd0000017954c766c08b48836cca314f2ac28314"
       - key: DISASTER_PORT
         value: "4000"
