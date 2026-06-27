@@ -442,6 +442,73 @@ router.get('/alerts', async (req, res) => {
 });
 
 /**
+ * GET /api/disaster/state-coords
+ * Returns the coordinates for a state
+ */
+router.get('/state-coords', (req, res) => {
+  const state = req.query.state?.toLowerCase() || 'maharashtra';
+  if (!STATE_DATA[state]) {
+    return res.status(400).json({
+      success: false,
+      error: `Invalid state: ${state}`,
+      supportedStates: Object.keys(STATE_DATA)
+    });
+  }
+  res.json({
+    success: true,
+    state,
+    ...STATE_DATA[state]
+  });
+});
+
+/**
+ * POST /api/disaster/alerts/process
+ * Generates agricultural disaster alerts from client-provided raw weather data
+ */
+router.post('/alerts/process', (req, res) => {
+  try {
+    const { weatherData, state } = req.body;
+    if (!weatherData) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing weatherData in request body'
+      });
+    }
+
+    const stateClean = state?.toLowerCase() || 'maharashtra';
+    if (!STATE_DATA[stateClean]) {
+      return res.status(400).json({
+        success: false,
+        error: `Invalid state: ${stateClean}`
+      });
+    }
+
+    const stateInfo = STATE_DATA[stateClean];
+    const alerts = generateAlertsFromWeather(weatherData, stateClean, stateInfo);
+
+    // Cache the result for this state
+    alertCache[stateClean] = { alerts, timestamp: Date.now() };
+
+    res.json({
+      success: true,
+      state: stateClean,
+      source: 'Client Fetch + Backend Process',
+      location: stateInfo.capital,
+      timestamp: new Date().toISOString(),
+      alertCount: alerts.length,
+      alerts
+    });
+  } catch (error) {
+    console.error('[DISASTER] Alerts Process Error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to process weather data',
+      message: error.message
+    });
+  }
+});
+
+/**
  * GET /api/disaster/supported-states
  */
 router.get('/supported-states', (req, res) => {

@@ -123,57 +123,97 @@ export const DisasterAlerts = ({ onBack }: { onBack: () => void }) => {
     }
   }, []);
 
-  useEffect(() => {
-    let mounted = true;
-    const fetchAlerts = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
-        const stateParam = selectedState === 'all' ? 'maharashtra' : selectedState;
-        const response = await fetch(`${API_BASE}/api/disaster/alerts?state=${encodeURIComponent(stateParam)}`);
-        const data = await response.json();
+  const loadAlerts = async (stateParam: string, isMounted = true) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
+      
+      const response = await fetch(`${API_BASE}/api/disaster/alerts?state=${encodeURIComponent(stateParam)}`);
+      const data = await response.json();
 
-        if (!mounted) return;
+      if (!isMounted) return;
 
-        const disasterAlerts = data.alerts || [];
-        const normalized = disasterAlerts.map((a: any, idx: number) => {
-          const displayState = selectedState === 'all' ? 'India' : formatStateName(selectedState);
-          return {
-            id: a.guid || a.link || `alert-${idx}-${Date.now()}`,
-            state: displayState,
-            title: a.title || 'Disaster Alert',
-            severity: a.severity || 'Info',
-            description: a.description || a.contentSnippet || 'No description available',
-            timeRemaining: a.date ? new Date(a.date).toLocaleString() : '',
-            affectedArea: '',
-            coordinates: getCoordinatesForState(selectedState),
-            link: a.link || '',
-            date: a.date || new Date().toISOString(),
-          };
-        });
+      let disasterAlerts = data.alerts || [];
 
-        setAlerts(normalized);
-
-        if (normalized.length === 0) {
-          setError(data.notice || 'No active disaster alerts at this time');
-        }
-
-        setLoading(false);
-      } catch (err) {
-        console.error('Failed to fetch disaster alerts:', err);
-        if (mounted) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch disaster alerts');
-          setAlerts([]);
-          setLoading(false);
+      // Check if we got rate limited/unavailable and need client-side fallback
+      if (disasterAlerts.length === 0 && (data.notice || data.debugError?.includes('429'))) {
+        console.warn('⚠️ Backend rate limited by Open-Meteo. Falling back to client-side direct fetch...');
+        try {
+          // 1. Get coordinates for this state from backend coords endpoint
+          const coordsRes = await fetch(`${API_BASE}/api/disaster/state-coords?state=${encodeURIComponent(stateParam)}`);
+          const coordsData = await coordsRes.json();
+          
+          if (coordsData.success) {
+            const { lat, lon } = coordsData;
+            // 2. Fetch Open-Meteo directly from the browser (user's unique IP)
+            const openMeteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,rain,weather_code,wind_speed_10m,wind_gusts_10m&hourly=temperature_2m,rain,weather_code,wind_gusts_10m&daily=temperature_2m_max,temperature_2m_min,rain_sum,wind_gusts_10m_max,weather_code&timezone=Asia/Kolkata&forecast_days=3`;
+            
+            const meteoRes = await fetch(openMeteoUrl);
+            if (meteoRes.ok) {
+              const weatherData = await meteoRes.json();
+              
+              // 3. Post raw weather data to backend to process alerts
+              const processRes = await fetch(`${API_BASE}/api/disaster/alerts/process`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ weatherData, state: stateParam })
+              });
+              
+              if (processRes.ok) {
+                const processData = await processRes.json();
+                disasterAlerts = processData.alerts || [];
+                data.notice = null; // Clear the notice since we recovered
+              }
+            }
+          }
+        } catch (fallbackErr) {
+          console.error('❌ Direct client-side fetch fallback also failed:', fallbackErr);
         }
       }
-    };
 
-    fetchAlerts();
+      const normalized = disasterAlerts.map((a: any, idx: number) => {
+        const displayState = stateParam === 'all' ? 'India' : formatStateName(stateParam);
+        return {
+          id: a.guid || a.link || `alert-${idx}-${Date.now()}`,
+          state: displayState,
+          title: a.title || 'Disaster Alert',
+          severity: a.severity || 'Info',
+          description: a.description || a.contentSnippet || 'No description available',
+          timeRemaining: a.date ? new Date(a.date).toLocaleString() : '',
+          affectedArea: '',
+          coordinates: getCoordinatesForState(stateParam),
+          link: a.link || '',
+          date: a.date || new Date().toISOString(),
+        };
+      });
+
+      setAlerts(normalized);
+
+      if (normalized.length === 0) {
+        setError(data.notice || 'No active disaster alerts at this time');
+      }
+
+      setLoading(false);
+    } catch (err) {
+      console.error('Failed to fetch disaster alerts:', err);
+      if (isMounted) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch disaster alerts');
+        setAlerts([]);
+        setLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    let mounted = true;
+    const stateParam = selectedState === 'all' ? 'maharashtra' : selectedState;
+    loadAlerts(stateParam, mounted);
 
     // Auto-refresh every 5 minutes
-    const interval = setInterval(fetchAlerts, 5 * 60 * 1000);
+    const interval = setInterval(() => {
+      loadAlerts(stateParam, mounted);
+    }, 5 * 60 * 1000);
 
     return () => {
       mounted = false;
@@ -361,34 +401,8 @@ export const DisasterAlerts = ({ onBack }: { onBack: () => void }) => {
                 
                 <Button
                   onClick={() => {
-                    setLoading(true);
-                    const API_BASE = import.meta.env.PROD ? (import.meta.env.VITE_API_BASE_URL || 'https://haritnavinya.onrender.com') : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
                     const stateParam = selectedState === 'all' ? 'maharashtra' : selectedState;
-
-                    fetch(`${API_BASE}/api/disaster/alerts?state=${encodeURIComponent(stateParam)}`)
-                      .then((r) => r.json())
-                      .then((data) => {
-                        const disasterAlerts = data.alerts || [];
-                        const normalized = disasterAlerts.map((a: any, idx: number) => ({
-                          id: a.guid || a.link || `alert-${idx}-${Date.now()}`,
-                          state: selectedState === 'all' ? 'India' : formatStateName(selectedState),
-                          title: a.title || 'Disaster Alert',
-                          severity: a.severity || 'Info',
-                          description: a.description || a.contentSnippet || 'No description available',
-                          timeRemaining: a.date ? new Date(a.date).toLocaleString() : '',
-                          affectedArea: '',
-                          coordinates: getCoordinatesForState(selectedState),
-                          link: a.link || '',
-                          date: a.date || new Date().toISOString(),
-                        }));
-                        setAlerts(normalized);
-                        setError(normalized.length === 0 ? data.notice || 'No active disaster alerts at this time' : null);
-                        setLoading(false);
-                      })
-                      .catch((err) => {
-                        setError(err.message);
-                        setLoading(false);
-                      });
+                    loadAlerts(stateParam, true);
                   }}
                   className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white"
                   size="sm"
