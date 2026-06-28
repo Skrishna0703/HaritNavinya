@@ -68,8 +68,11 @@ router.get('/', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Internal Server Error',
-      message: 'Failed to fetch weather data from Open-Meteo API',
-      debug: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: 'Failed to fetch weather data',
+      detail: error.message,
+      hint: !process.env.OPENWEATHER_API_KEY
+        ? 'OPENWEATHER_API_KEY is not set in environment'
+        : 'Check server logs for details'
     });
   }
 });
