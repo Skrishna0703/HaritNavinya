@@ -114,7 +114,7 @@ export function AIChatbot({ onBack }: AIChatbotProps) {
 
     try {
       // Call the real backend API
-      const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
       const response = await fetch(`${API_BASE}/api/chatbot/chat`, {
         method: 'POST',
         headers: {

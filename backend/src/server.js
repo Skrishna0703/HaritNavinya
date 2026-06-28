@@ -22,6 +22,7 @@ import soilRoutes from './routes/soilRoutes.js';
 import weatherRoutes from './routes/weatherRoutes.js';
 import disasterRoutes from './routes/disasterRoutes.js';
 import testingCenterRoutes from './routes/testingCenterRoutes.js';
+import chatbotRoutes from './routes/chatbotRoutes.js';
 import { loadSoilDataFromCSV } from './services/csvDataParser.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -89,7 +90,8 @@ app.get('/api/health', (req, res) => {
       { name: 'Soil Fertility Map', endpoint: '/api/soil', status: '✅' },
       { name: 'Testing Centers (MongoDB)', endpoint: '/api/testing-centers', status: '✅' },
       { name: 'Market Data', endpoint: '/api/dashboard', status: '✅' },
-      { name: 'Disaster Alerts', endpoint: '/api/disaster/alerts', status: '✅' }
+      { name: 'Disaster Alerts', endpoint: '/api/disaster/alerts', status: '✅' },
+      { name: 'Agriculture Chatbot', endpoint: '/api/chatbot/chat', status: process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY ? '✅' : '⚠️ API key missing' }
     ]
   });
 });
@@ -104,8 +106,11 @@ app.use('/api/soil', soilRoutes);
 // Testing Centers API routes
 app.use('/api/testing-centers', testingCenterRoutes);
 
-// Disaster Alerts routes (NDMA SACHET RSS Feed)
+// Disaster Alerts routes
 app.use('/api/disaster', disasterRoutes);
+
+// Agriculture Chatbot routes (mounted here so only one server needed in production)
+app.use('/api/chatbot', chatbotRoutes);
 
 // Mandi/Market API routes (most generic, should be last)
 app.use('/api', mandiRoutes);

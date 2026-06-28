@@ -50,6 +50,10 @@ services:
         value: "579b464db66ec23bdd0000017954c766c08b48836cca314f2ac28314"
       - key: DISASTER_PORT
         value: "4000"
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENWEATHER_API_KEY
+        sync: false
 
 databases:
   - name: haritnavinya-db
